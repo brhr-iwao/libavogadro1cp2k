@@ -40,4 +40,4 @@ or scare your cat. Or any combination of those.
 Avogadro 2](https://github.com/infuniri/avogadrolibs-cp2k) )
 
 ###  Contact
-[aoyama iwao](https://github.com/brhr-iwao)
+[Aoyama Iwao](https://github.com/brhr-iwao)
