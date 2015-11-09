@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Cp2kInputDialog</class>
+ <widget class="QDialog" name="Cp2kInputDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>625</width>
+    <height>406</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>CP2K Input</string>
+  </property>
+  <widget class="QPushButton" name="closeButton">
+   <property name="geometry">
+    <rect>
+     <x>530</x>
+     <y>370</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </widget>
+  <widget class="QTabWidget" name="tabWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>591</width>
+     <height>171</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>0</number>
+   </property>
+   <widget class="QWidget" name="basicsTab">
+    <attribute name="title">
+     <string>Basics</string>
+    </attribute>
+    <widget class="QLineEdit" name="projectNameLine">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>20</y>
+       <width>451</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Enter your project name.</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="projectNameLabel">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Project Name:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="runTypeCombo">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>50</y>
+       <width>141</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Energy</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Energy and Force</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Molecular Dynamics</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Geometry Optimization</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Monte Carlo</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="runTypeLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>50</y>
+       <width>50</width>
+       <height>12</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Run Type:</string>
+     </property>
+    </widget>
+    <widget class="QGroupBox" name="forceChoiceBox">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>80</y>
+       <width>361</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Electronic calculation method.</string>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Force</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <widget class="QRadioButton" name="mmRadioButton">
+      <property name="geometry">
+       <rect>
+        <x>40</x>
+        <y>20</y>
+        <width>61</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>MM</string>
+      </property>
+     </widget>
+     <widget class="QRadioButton" name="qmRadioButton">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>20</y>
+        <width>86</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>QM</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="mmTab">
+    <attribute name="title">
+     <string>MM</string>
+    </attribute>
+   </widget>
+   <widget class="QWidget" name="qmTab">
+    <attribute name="title">
+     <string>QM</string>
+    </attribute>
+   </widget>
+   <widget class="QWidget" name="moreTab">
+    <attribute name="title">
+     <string>More</string>
+    </attribute>
+   </widget>
+  </widget>
+  <widget class="QTextEdit" name="previewText">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>190</y>
+     <width>591</width>
+     <height>171</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="generateButton">
+   <property name="geometry">
+    <rect>
+     <x>440</x>
+     <y>370</y>
+     <width>75</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Generate...</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
