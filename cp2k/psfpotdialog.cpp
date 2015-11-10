@@ -1,7 +1,7 @@
 /**********************************************************************
   PsfPotDialog - Charmm-style Psf/Pot Generator Dialog
 
-  Copyright (C) aoyama iwao
+  Copyright (C) Aoyama Iwao
 
   This file is part of the Avogadro molecular editor project.
   For more information, see <http://avogadro.cc/>

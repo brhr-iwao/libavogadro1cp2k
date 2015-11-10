@@ -1,7 +1,7 @@
 /**********************************************************************
   Cp2kInpuDialog - CP2k Input Dialog
 
-  Copyright (C) aoyama iwao
+  Copyright (C) Aoyama Iwao
 
   This file is part of the Avogadro molecular editor project.
   For more information, see <http://avogadro.cc/>
@@ -139,6 +139,12 @@ namespace Avogadro
 				mol << "   IGNORE_MISSING_CRITICAL_PARAMS T\n";
 
 				mol << "  &END FORCEFIELD\n";
+
+				mol << "  &POISSON\n";
+				mol << "   &EWALD\n";
+				mol << "     EWALD_TYPE NONE\n";
+				mol << "   &END EWALD\n";
+				mol << "  &END POISSON\n";
 
 			mol << " &END MM\n";
 		}
