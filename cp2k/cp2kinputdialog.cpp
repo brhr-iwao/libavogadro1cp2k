@@ -50,12 +50,20 @@ namespace Avogadro
 	  connect(ui.mmRadioButton, SIGNAL(clicked()), this, SLOT(mmRadioChecked()) );
 	  connect(ui.qmRadioButton, SIGNAL(clicked()), this, SLOT(qmRadioChecked()) );
 
+	  m_projectName = "myProject";
 	  m_runType = "ENERGY";
 
+	  /*
 	  ui.mmRadioButton->setChecked(false);
 	  ui.qmRadioButton->setChecked(true);
 	  m_mmRadioChecked = false;
 	  m_qmRadioChecked = true;
+	  */
+
+	  ui.mmRadioButton->setChecked(true);
+	  ui.qmRadioButton->setChecked(false);
+	  m_mmRadioChecked = true;
+	  m_qmRadioChecked = false;
 
 	  updatePreviewText();
 
@@ -153,11 +161,16 @@ namespace Avogadro
 		{
 			mol << " METHOD QUICKSTEP\n";
 
+			// DFT
+			mol << "  BASIS_SET_FILE_NAME  GTH_BASIS_SETS\n";
+			mol << "  POTENTIAL_FILE_NAME  POTENTIAL\n";
+
 		}
 
 		mol << " &SUBSYS\n";
 
-		if( m_qmRadioChecked && (m_molecule != NULL)) // QM
+		 // Define coord in input only for QM (Specify coord file for MM)
+		if( m_qmRadioChecked && (m_molecule != NULL))
 		{
 			  QList<Atom *> atoms = m_molecule->atoms();
 
@@ -176,6 +189,7 @@ namespace Avogadro
 
 		 }
 
+		// Specify coord file for MM
 		else if( m_mmRadioChecked )
 		{
 			mol << "   &TOPOLOGY\n";
@@ -200,6 +214,7 @@ namespace Avogadro
 		}
 
 
+		// DFT
 		 setAtomKind();
 
 		 if( m_molecule != NULL && (&atomKind != NULL) && (m_qmRadioChecked) )
@@ -215,6 +230,7 @@ namespace Avogadro
 			     mol << "   &END KIND\n\n";
 		      }
 		 }
+		 // DFT ends.
 
 		 mol << "  &CELL\n";
   		 if(m_molecule != NULL)
@@ -239,7 +255,7 @@ namespace Avogadro
 
 			  else
 			  {
-				  mol << tr("# Please Add Unit Cell or type cell parameters !\n");
+				  mol << tr("   ABC 50 50 50 # Provisional Cell Param. Please 'Add Unit Cell'!\n");
 			  }
 
 		 }
@@ -391,8 +407,9 @@ namespace Avogadro
 
     QString defaultFileName = defaultPath + '/' + defaultFile.baseName() + "." + ext;
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Input Deck"),
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save CP2K Input"),
                                                       defaultFileName, fileType + " (*." + ext + ")");
+	// m_savePath = defaultPath; // set current path to save path.
 
     if(fileName == "")
       return fileName;

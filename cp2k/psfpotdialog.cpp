@@ -186,8 +186,9 @@ namespace Avogadro
 
     QString defaultFileName = defaultPath + '/' + defaultFile.baseName() + "." + ext;
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Input Deck"),
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),
                                                       defaultFileName, fileType + " (*." + ext + ")");
+	// m_savePath = defaultPath; // set current path to save path.
 
     if(fileName == "")
       return fileName;
@@ -646,7 +647,7 @@ namespace Avogadro
 			ts << tr("      by using General AMBER Force Fields (GAFF).\n\n");
 
 			// ts << qSetFieldWidth(7) << left << mol.NumAtoms() << "\n"<< qSetFieldWidth(0);
-			ts << qSetFieldWidth(5) << right << mol.NumAtoms() << " !NATOMS\n";
+			ts << qSetFieldWidth(5) << right << mol.NumAtoms() << " !NATOMS" << qSetFieldWidth(0) << endl;;
 
    	      int acum_natom = 0;
 	      int acum_nres = 0;
@@ -655,32 +656,24 @@ namespace Avogadro
 	      {
 		      FOR_ATOMS_OF_MOL( atom, mols[molid] )
 		     {
-			      int atomid = atom->GetId() + acum_natom; // GetId() retrives unique atom index of mol and mols starts from 0. 
-			                                               // (GetId() was different from GetIdx() 
-			                                               // which starts from 1 and are changable by AddHyrogen() or Separate())
+				 // GetId() retrives unique atom index of mol and mols starts from 0. 
+				 // (GetId() was different from GetIdx() 
+			      // which starts from 1 and are changable by AddHyrogen() or Separate())
+			     int atomid = atom->GetId() + 1 + acum_natom;
+				 // int atomid = atom->GetIdx();
 
 			      OBPairData *type = (OBPairData*) atom->GetData("FFAtomType");
 
-				  ts << qSetFieldWidth(7) << right << atomid + 1 << qSetFieldWidth(0)
+				  ts << qSetFieldWidth(7) << right << atomid << qSetFieldWidth(0)
 					 << " SEG" << left << molid + 1;
 				  ts << qSetFieldWidth(7) << right 
 					  << atom->GetResidue()->GetIdx() + 1 + acum_nres;
 				  ts << qSetFieldWidth(5) << right << atom->GetResidue()->GetName().c_str() 
-					  << " " << qSetFieldWidth(0);
+					  << qSetFieldWidth(0) << " ";
 				  ts << left << etab.GetSymbol(atom->GetAtomicNum()) << "  ";
 				  ts << left << type->GetValue().c_str() << "    ";
-				  ts << qSetRealNumberPrecision(5) << right << atom->GetPartialCharge() <<  "  ";
-				  ts << qSetRealNumberPrecision(5) << right << atom->GetExactMass() << "      0\n";
-
-			 /*
-			 printf("%7d SEG%d", atomid + 1, molid + 1 );
-			 printf("%7d", atom->GetResidue()->GetIdx() + 1 + acum_nres );
-			 printf("%5s ", atom->GetResidue()->GetName().c_str() );
-	         printf("%-s ", etab.GetSymbol(atom->GetAtomicNum()));
-			 printf("%-s    ", type->GetValue().c_str() ); // x4
-	         printf("%.5f  ", atom->GetPartialCharge());
-	         printf("%.5f      0\n", atom->GetExactMass() );
-			 */
+				  ts << qSetRealNumberPrecision(5) << fixed << right << atom->GetPartialCharge() <<  "  ";
+				  ts << qSetRealNumberPrecision(5) << fixed << right << atom->GetExactMass() << "      0\n";
 
 		      }	   
 		          acum_natom += mols[molid].NumAtoms();
@@ -688,8 +681,8 @@ namespace Avogadro
 	      }
 
 	      ts << endl;
-          ts << qSetFieldWidth(5) << right << mol.NumBonds() << " !NBONDS\n";
-		  // printf("%5d !NBOND bonds\n", mol.NumBonds() );
+          ts << qSetFieldWidth(5) << right << mol.NumBonds() << " !NBONDS" << qSetFieldWidth(0) << endl;
+		  ts << "     ";
 
 		 // bond pairs
          int i = 0;
@@ -698,15 +691,24 @@ namespace Avogadro
          {
 	          FOR_BONDS_OF_MOL(bond, mols[molid] )
              {
-	              ts << "      " 
+
+	              ts << "   " 
 				     << bond->GetBeginAtom()->GetId() + 1 + acum_natom 
-				     << "      " 
+				     << "   " 
 				    << bond->GetEndAtom()->GetId() + 1 + acum_natom ;
 	               i++;
 
+				 /*
+				 	ts << "      " 
+				     << bond->GetBeginAtom()->GetIdx()
+				     << "      " 
+				    << bond->GetEndAtom()->GetIdx() ;
+	               i++;
+				 */
+
 	                if( i >= 4 ) // four pairs of atoms per line
 	              {
-			             ts << endl;
+			             ts << endl << "     ";
 	                     i=0;
 	              }
 	              else continue;
@@ -722,7 +724,8 @@ namespace Avogadro
           int nAngle = 0;
           FOR_ANGLES_OF_MOL(angle, mol){ nAngle++; }
 
-          ts << qSetFieldWidth(5) << right << nAngle << " !NTHATA: angles" << endl;
+          ts << qSetFieldWidth(5) << right << nAngle << " !NTHETA: angles" << qSetFieldWidth(0) << endl;
+		  ts << "     ";
 
 		  // angle triples
           OBAtom *a, *b, *c;
@@ -736,17 +739,27 @@ namespace Avogadro
 	                 b = mols[molid].GetAtom((*angle)[0] + 1); // vertex
 	                 c = mols[molid].GetAtom((*angle)[2] + 1);
 
-	                ts << "      " 
+	                ts << "   " 
 			        	<< a->GetId() + 1 + acum_natom
-			    	    << "      " 
+			    	    << "   " 
 				        << b->GetId() + 1 + acum_natom
-				         << "      " 
+				         << "   " 
 				       << c->GetId() + 1 + acum_natom;
                      i++;
 
+					 /*
+					 ts << "      " 
+			        	<< a->GetIdx()
+			    	    << "      " 
+				        << b->GetIdx()
+				         << "      " 
+				       << c->GetIdx();
+					 i++;
+					 */
+
 	                if( i >= 3 ) // three triples of atoms per line
 	                { 
-		                ts << endl;
+		                ts << endl << "     ";
 		                 i = 0;
 	                }
 	                else continue;
@@ -764,7 +777,8 @@ namespace Avogadro
         // number of torsion (dihedral) quadreples
         int nTorsion = 0;
         FOR_TORSIONS_OF_MOL(torsion, mol){ nTorsion++ ;}
-		ts << qSetFieldWidth(5) << right << nTorsion << " !NPHI: dihedrals\n";
+		ts << qSetFieldWidth(5) << right << nTorsion << " !NPHI: dihedrals" << qSetFieldWidth(0) << endl;
+	    ts << "     ";
 
         // torsion (dihedral) quadreples
         OBAtom* d; // OBAtom *a, *b and *c are already decleard above.
@@ -779,19 +793,32 @@ namespace Avogadro
 	           c = mols[molid].GetAtom((*torsion)[2] + 1);
 	           d = mols[molid].GetAtom((*torsion)[3] + 1);
 
-	           ts << "      " 
+	           ts << "   " 
 				  << a->GetId() + 1 + acum_natom
-				  << "      " 
+				  << "   " 
 				  << b->GetId() + 1 + acum_natom
-				  << "      "
+				  << "   "
 				  << c->GetId() + 1 + acum_natom 
-				  << "      " <<
+				  << "   " <<
 				     d->GetId() + 1 + acum_natom ;
 	           i++;
 
+			   /*
+	           ts << "      " 
+				  << a->GetIdx()
+				  << "      " 
+				  << b->GetIdx()
+				  << "      "
+				  << c->GetIdx()
+				  << "      " <<
+				     d->GetIdx();
+	           i++;
+			   */
+
 	          if( i >= 2 ) // two quaruples of atoms per line
 	          { 
-		        ts << endl;
+		        ts << endl
+					<< "     ";
 		        i = 0;
 	           }
 	        else continue;
@@ -801,16 +828,17 @@ namespace Avogadro
          }
          // end of dihedrals
 
-          ts << endl; // an empty line
+          ts << endl
+		  	 << "     "; // an empty line
  
-          // number of out-of-plane ( improper ) dihedral quadreples
+         // number of out-of-plane ( improper ) dihedral quadreples
           int nOOP = 0;
           FOR_ATOMS_OF_MOL (atom, mol) 
          { 
 	        if( atom->GetImplicitValence() == 3 ) {nOOP++;}
          }
-         ts << nOOP << " !NIMPHI: impropers" << endl;
-         // printf("%5d !NIMPHI: impropers\n", nOOP);
+         ts << nOOP << " !NIMPHI: impropers" << qSetFieldWidth(0) << endl;
+		 ts << "     ";
 
         // out-of-plane (improper) dihedral quareples
          i = 0;
@@ -821,18 +849,17 @@ namespace Avogadro
            {
 	          if( atom->GetImplicitValence() == 3 )
 	          {
-		            ts << "      " << atom->GetId() + 1 + acum_natom;
+		          ts << "   " << atom->GetId() + 1 + acum_natom;
+				  // ts << "      " << atom->GetIdx();
 
                    FOR_NBORS_OF_ATOM( nbr, &*atom )
-		          {
-
-			         ts << "      " << nbr->GetId() + 1 + acum_natom;
-		           }
+			       { ts << "   " << nbr->GetId() + 1 + acum_natom; }
+				   // { ts << "      " << nbr->GetIdx();}
 		          i++;
 
 		          if( i >= 2 ) // two quaruples of atoms per line
 		    	  {
-		             ts << endl;
+		             ts << endl << "     ";
 				     i = 0;
 		          }
 
@@ -846,7 +873,7 @@ namespace Avogadro
 
         ts << endl; // an empty line
 
-        ts << "    0 !NDON\n\n";
+        ts << "   0 !NDON\n\n";
         ts << "   0 !NACC\n\n";
         ts << "   0 !NNB\n\n";
         ts << "   0 !NGRP\n\n";
@@ -1402,7 +1429,8 @@ namespace Avogadro
 		  for( i = 0; i < bkmol.size(); i++ )
 	     {
 
-		  ts << bkmol[i].aT1 << " "
+		  ts << qSetRealNumberPrecision(5) << fixed << right
+			 << bkmol[i].aT1 << " "
              <<  bkmol[i].aT2 << "    "
 			 << qSetRealNumberPrecision(9)
 			 <<  bkmol[i].Kb << " "
@@ -1502,7 +1530,8 @@ namespace Avogadro
 
 		 for( i = 0; i < akmol.size(); i++ )
 	     {
-		    ts <<  akmol[i].aT1 << " "
+		    ts  << qSetRealNumberPrecision(5) << fixed << right
+				<<  akmol[i].aT1 << " "
                <<  akmol[i].aT2 << " "
 			   <<  akmol[i].aT3 << "    "
 			   <<  qSetRealNumberPrecision(9)
@@ -1526,12 +1555,15 @@ namespace Avogadro
 
 	   for( i = 0; i < tkmol.size(); i++ )
 	   {
-		  ts <<  tkmol[i].aT1 << " "
+		  ts  << qSetRealNumberPrecision(5) << fixed << right
+			  <<  tkmol[i].aT1 << " "
              <<  tkmol[i].aT2 << " "
 			 <<  tkmol[i].aT3 << " "
              <<  tkmol[i].aT4 << "    "
 			 <<  tkmol[i].vn2 << " "
+			 <<  qSetRealNumberPrecision(0) 
 			 <<  tkmol[i].n << "  "
+			 <<  qSetRealNumberPrecision(5) << fixed << right
 			 <<  tkmol[i].gamma << endl;
 
    	     }
@@ -1547,7 +1579,8 @@ namespace Avogadro
         ts << "!\n";
 	   for( i = 0; i < okmol.size(); i++ )
 	  {
-		ts <<  okmol[i].aT1 << " "
+		ts   << qSetRealNumberPrecision(5) << fixed << right
+			<<  okmol[i].aT1 << " "
              <<  okmol[i].aT2 << " "
 			 <<  okmol[i].aT3 << " "
              <<  okmol[i].aT4 << "    "
@@ -1571,7 +1604,8 @@ namespace Avogadro
 	for( i = 0; i< nkmol.size() ; i++ )
 	{
 
-		ts << nkmol[i].aT << "     "
+		ts  << qSetRealNumberPrecision(5) << fixed << right
+			<< nkmol[i].aT << "     "
 			<< "0.00000" << "   "
 			<< nkmol[i].eps <<  "   "
 			<< nkmol[i].R
