@@ -1,5 +1,5 @@
 ## libavogadro1cp2k
-cp2k input and psf/pot generator for avogadro
+CP2K input and Psf/Pot Generator for Avogadro
 
 ### CP2K input and CHARMM-Style Parameter (pot) / Protein Structure File (psf) generator for Avogadro 1.x
 
