@@ -50,8 +50,12 @@ namespace Avogadro
 	  connect(ui.mmRadioButton, SIGNAL(clicked()), this, SLOT(mmRadioChecked()) );
 	  connect(ui.qmRadioButton, SIGNAL(clicked()), this, SLOT(qmRadioChecked()) );
 
+	  connect(ui.qmCalcTypeCombo,SIGNAL(currentIndexChanged(int)),this, SLOT(setQmCalcType(int)) );
+
 	  m_projectName = "myProject";
+      ui.projectNameLine->insert( m_projectName );
 	  m_runType = "ENERGY";
+	  m_qmCalcType = "DFT";
 
 	  /*
 	  ui.mmRadioButton->setChecked(false);
@@ -132,7 +136,8 @@ namespace Avogadro
 
 	  mol << "&FORCE_EVAL\n";
 
-	    if( m_mmRadioChecked ) // MM
+	  // MM
+	    if( m_mmRadioChecked ) 
 		{
 			mol << " METHOD FIST\n";
 		    mol << " &MM\n";
@@ -156,14 +161,106 @@ namespace Avogadro
 
 			mol << " &END MM\n";
 		}
+		// MM ends.
 
 		else if( m_qmRadioChecked ) // QM
 		{
-			mol << " METHOD QUICKSTEP\n";
 
 			// DFT
-			mol << "  BASIS_SET_FILE_NAME  GTH_BASIS_SETS\n";
-			mol << "  POTENTIAL_FILE_NAME  POTENTIAL\n";
+			if( m_qmCalcType == "DFT" )
+			{
+			   mol << " METHOD QS\n";
+			   mol << " &DFT\n";
+
+			   mol << "  BASIS_SET_FILE_NAME  GTH_BASIS_SETS\n";
+			   mol << "  POTENTIAL_FILE_NAME  POTENTIAL\n";
+			   mol << "  &MGRID\n";
+			   mol << "   CUTOFF 200\n";
+			   mol << "  &END MGRID\n";
+
+			   mol << "  &XC\n";
+               mol << "   &XC_FUNCTIONAL BLYP\n"; 
+               mol << "   &END XC_FUNCTIONAL\n";
+               mol << "  &END XC\n";
+
+			   mol << " &END DFT\n";
+			}
+
+			else if( m_qmCalcType == "DFTB-SCC" )
+			{
+			   mol << "# Please copy scc folder (which may have been in data/DFTB or tests/DFTB ) \n";
+			   mol << "# and its contents to ../(cp2k executable directory)\n";
+			   mol << " &DFT\n";
+			   mol << "  &QS\n";
+			   mol << "   METHOD DFTB\n";
+
+			   mol << "   &DFTB\n";
+               mol << "     SELF_CONSISTENT    T\n";
+               mol << "     DISPERSION         F\n";
+               mol << "     ORTHOGONAL_BASIS   F\n";  
+               mol << "     DO_EWALD           F\n";
+               mol << "     &PARAMETER\n";
+               mol << "      PARAM_FILE_PATH  ../scc\n";
+               mol << "      PARAM_FILE_NAME  scc_parameter\n";
+               mol << "     &END PARAMETER\n";
+			   mol << "   &END DFTB\n";
+
+			   mol << "  &END QS\n";
+
+			   mol << "  &SCF\n";
+			   mol << "   SCF_GUESS CORE\n";
+			   mol << "   MAX_SCF  20\n";
+			   mol << "  &END SCF\n";
+
+			   mol << " &END DFT\n";
+			}
+
+			else if( m_qmCalcType == "DFTB-NONSCC" )
+			{
+			   mol << "# Please copy nonscc folder (which may have been in data/DFTB or tests/DFTB ) \n";
+			   mol << "# and its contents to ../(cp2k executable directory)\n";
+			   mol << " &DFT\n";
+			   mol << "  &QS\n";
+			   mol << "   METHOD DFTB\n";
+
+			   mol << "   &DFTB\n";
+               mol << "     SELF_CONSISTENT    T\n";
+               mol << "     DISPERSION         F\n";
+               mol << "     ORTHOGONAL_BASIS   F\n";  
+               mol << "     DO_EWALD           F\n";
+               mol << "     &PARAMETER\n";
+               mol << "      PARAM_FILE_PATH  ../nonscc\n";
+               mol << "      PARAM_FILE_NAME  nonscc_parameter\n";
+               mol << "     &END PARAMETER\n";
+			   mol << "   &END DFTB\n";
+
+			   mol << "  &END QS\n";
+
+			   mol << "  &SCF\n";
+			   mol << "   SCF_GUESS CORE\n";
+			   mol << "   MAX_SCF  20\n";
+			   mol << "  &END SCF\n";
+
+			   mol << " &END DFT\n";
+			}
+
+			else if( m_qmCalcType == "SE-PM6" )
+			{
+			   mol << " METHOD QS\n";
+			   mol << " &DFT\n";
+			   mol << "  &QS\n";
+			   mol << "   METHOD PM6\n";
+			   mol << "   &SE\n";
+			   mol << "     ANALYTICAL_GRADIENTS F\n";
+			   mol << "   &END SE\n";
+			   mol << "  &END QS\n";
+
+               mol << "  &SCF\n";
+               mol << "    SCF_GUESS ATOMIC\n";
+               mol << "&END SCF\n";
+
+			   mol << " &END DFT\n";
+			}
 
 		}
 
@@ -214,23 +311,25 @@ namespace Avogadro
 		}
 
 
-		// DFT
-		 setAtomKind();
-
-		 if( m_molecule != NULL && (&atomKind != NULL) && (m_qmRadioChecked) )
+		// Atom kind for DFT
+		 if( m_molecule != NULL && (&atomKind != NULL) && (m_qmRadioChecked) && (m_qmCalcType == "DFT") )
 		 {
+			 setAtomKind();
+
 			 int i;
 		     for( i = 0 ; i < atomKind.size() ; i++ )
 		     {
 		         mol << "   &KIND " << atomKind[i] << "\n";
 
-			     mol  << "    BASIS_SET\n"
-					  << "    POTENTIAL\n";
+				 mol  << "    BASIS_SET DZVP-GTH\n"
+					  << "    POTENTIAL "
+					  << potentialName( atomKind[i] )
+                      << "\n";
 
 			     mol << "   &END KIND\n\n";
 		      }
 		 }
-		 // DFT ends.
+		 // Atom kind for DFT ends.
 
 		 mol << "  &CELL\n";
   		 if(m_molecule != NULL)
@@ -324,6 +423,30 @@ namespace Avogadro
 
   }
 
+  void Cp2kInputDialog::setQmCalcType(int n)
+  {
+	  switch(n)
+	  {
+	    case 0:
+			m_qmCalcType = "DFT";
+			break;
+	    case 1:
+			m_qmCalcType = "DFTB-SCC";
+			break;
+		case 2:
+			m_qmCalcType = "DFTB-NONSCC";
+			break;
+		case 3:
+			m_qmCalcType = "SE-PM6";
+			break;
+		default:
+			m_qmCalcType = "DFT";
+
+	  }
+
+	  updatePreviewText();
+  }
+
   // Extracts atom kinds
   void Cp2kInputDialog::setAtomKind()
   {
@@ -353,14 +476,52 @@ namespace Avogadro
 	  return;
   }
 
+  // temporary function
+  QString Cp2kInputDialog::potentialName( QString atomType )
+  {
+	  /*
+     if( atomType == "H" )
+		 return "GTH-BLYP-q1";
+	 else
+		 return "";
+	  */
+
+	  QString potName("GTH-BLYP-q");
+	  int iAtomicNum = etab.GetAtomicNum( atomType.toStdString().c_str() );
+      int iValenceElec = 0;
+
+     if( iAtomicNum == 1 || iAtomicNum == 2 )
+	    { iValenceElec = iAtomicNum; }
+
+	 else if( iAtomicNum >= 3 && iAtomicNum <= 10 )
+	    { iValenceElec = iAtomicNum - 2;}
+
+	 else if( iAtomicNum >= 11 && iAtomicNum <= 18 )
+	    { iValenceElec = iAtomicNum - 10;}
+
+
+	  if( iValenceElec == 0 )
+	  {
+		  potName = "#type pseuopotential functional";
+		  return potName;
+	  }
+
+	  char cValenceElec[4];
+	  sprintf( cValenceElec, "%d", iValenceElec );
+
+      potName.append( cValenceElec );
+
+	  return potName;
+  }
+
 
   void Cp2kInputDialog::mmRadioChecked()
   {
 	  m_mmRadioChecked = true;
 	  m_qmRadioChecked = false;
 
-	  ui.mmTab->show();
-	  ui.qmTab->hide();
+	  //ui.mmTab->show();
+	  //ui.qmTab->hide();
 
 	  updatePreviewText();
   }
@@ -370,8 +531,8 @@ namespace Avogadro
 	  m_mmRadioChecked = false;
 	  m_qmRadioChecked = true;
 
-	  ui.mmTab->hide();
-	  ui.qmTab->show();
+	  //ui.mmTab->hide();
+	  //ui.qmTab->show();
 
 	  updatePreviewText();
   }

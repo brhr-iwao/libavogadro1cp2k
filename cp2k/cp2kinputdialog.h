@@ -59,6 +59,8 @@ namespace Avogadro
 	// runType m_runType; 
 	QString m_runType;
     // Molecule* m_molecule;
+
+	QString m_qmCalcType;
     ConstraintsModel *m_constraints;
 
 	bool m_mmRadioChecked;
@@ -69,6 +71,8 @@ namespace Avogadro
 	QString generateInputDeck();
 
     void setAtomKind();
+
+	QString potentialName( QString atomType );
 
 
   public Q_SLOTS:
@@ -84,6 +88,7 @@ namespace Avogadro
 
 	void setProjectName();
 	void setRunType(int);
+	void setQmCalcType(int);
 
   protected:
 	QString saveInputFile(QString inputDeck, QString fileType, QString ext);
