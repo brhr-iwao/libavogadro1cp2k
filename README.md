@@ -19,7 +19,7 @@ or [Compiling on Windows with MSVC 2010](http://avogadro.cc/wiki/Compiling_on_Wi
 3. Launch Visual Studio 20XX command prompt, change the current working diretory to (avogadro root)/scripts 
 and execute the command "nmake cp2kinputextension".
 
-4. If nmake completes successfully, cp2kinputextension.dll is created in (avogadro root)/scripts/lib.
+4. If nmake completes successfully, cp2kinputextension.dll is created in (avogadro root)/scripts/lib (or (avogadro root)/scripts/lib/Release).
  Put this dll in (Avogadro install dir, maybe C:/Program Files/Avogadro)/lib/avogadro/1_1/extensions/.
  
 5. If you get "Psf/Pot..." and "CP2K Input..."entry in Avogadro "Extensions" menu, the installation was successful.
