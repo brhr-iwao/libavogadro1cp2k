@@ -7,7 +7,17 @@ CP2K input and Psf/Pot Generator for Avogadro
 A generator of [CP2K](http://cp2k.org/) input, [CHARMM](http://www.charmm.org)-style Force Field Parameter (pot) and Protein Structure File (psf) for [Avogadro](http://avogadro.cc/) 1.1 (or later).
 
 ###  Installation
-Here I described only a way to intall on Windows since I worked only on Windows...
+#### Using with precompiled binary
+
+A Easy way to use libavogadro1cp2k is to use with precompiled [Avogadro](http://avogadro.cc/) for Windows.
+
+1. Download Avogadro Installer for Windows (Avogadro-1.1.1-win32.exe) from [Sourceforge] (http://sourceforge.net/projects/avogadro/) and install the Avogadro binary on your Windows PC.
+2. Copy released cp2kinputextension.dll to (Avogadro install directory, maybe C:\Program Files\Avogadro)\lib\Avogadro\1_1\ extensions directory.
+3. Launch Avogadro. If you find 'Psf/Pot...' and 'CP2K Input...' entries in 'Extensions' menu, the installation was 
+successful.
+
+#### Compiling with Visual Studio
+Here I described only a way to intall on Windows from sources since I worked only on Windows...
 
 1. Build and install Avogadro 1.1.1 (the latest version) from [github master](https://github.com/cryos/avogadro) source codes
 by following the instruction [Compiling on Windows with MSVC2008](http://avogadro.cc/wiki/Compiling_on_Windows_with_MSVC_2008)
