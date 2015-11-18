@@ -12,7 +12,7 @@ A generator of [CP2K](http://cp2k.org/) input, [CHARMM](http://www.charmm.org)-s
 An easy way to use libavogadro1cp2k is to use with precompiled [Avogadro](http://avogadro.cc/) for Windows.
 
 1. Download Avogadro Installer for Windows (Avogadro-1.1.1-win32.exe) from [Sourceforge] (http://sourceforge.net/projects/avogadro/) and install the Avogadro binary on your Windows PC.
-2. Copy released cp2kinputextension.dll to (Avogadro install directory, maybe C:\Program Files\Avogadro)\lib\Avogadro\1_1\ extensions directory.
+2. Copy [released cp2kinputextension.dll] (https://github.com/brhr-iwao/libavogadro1cp2k/releases) to (Avogadro install directory, maybe C:\Program Files\Avogadro)\lib\Avogadro\1_1\ extensions directory.
 3. Launch Avogadro. If you find 'Psf/Pot...' and 'CP2K Input...' entries in 'Extensions' menu, the installation was 
 successful.
 
