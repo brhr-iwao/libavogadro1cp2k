@@ -50,12 +50,21 @@ namespace Avogadro
 	  connect(ui.mmRadioButton, SIGNAL(clicked()), this, SLOT(mmRadioChecked()) );
 	  connect(ui.qmRadioButton, SIGNAL(clicked()), this, SLOT(qmRadioChecked()) );
 
-	  connect(ui.qmCalcTypeCombo,SIGNAL(currentIndexChanged(int)),this, SLOT(setQmCalcType(int)) );
+	  connect(ui.ewaldTypeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setEwaldType(int)));
+
+	  connect(ui.qmMethodCombo,SIGNAL(currentIndexChanged(int)),this, SLOT(setQmMethod(int)) );
+	  connect(ui.nMGridSpin, SIGNAL(valueChanged(int)), this, SLOT(setNMultiGrid(int)));
 
 	  m_projectName = "myProject";
       ui.projectNameLine->insert( m_projectName );
 	  m_runType = "ENERGY";
-	  m_qmCalcType = "DFT";
+	  m_ewaldType = "NONE";
+	  m_qmMethod = "DFT";
+
+	  m_nMultiGrid = 4;
+	  ui.nMGridSpin->setRange(1,10);
+	  ui.nMGridSpin->setSingleStep(1);
+	  ui.nMGridSpin->setValue(4);
 
 	  /*
 	  ui.mmRadioButton->setChecked(false);
@@ -66,8 +75,11 @@ namespace Avogadro
 
 	  ui.mmRadioButton->setChecked(true);
 	  ui.qmRadioButton->setChecked(false);
+	  mmRadioChecked();
+	  /*
 	  m_mmRadioChecked = true;
 	  m_qmRadioChecked = false;
+	  */
 
 	  updatePreviewText();
 
@@ -155,7 +167,7 @@ namespace Avogadro
 
 				mol << "  &POISSON\n";
 				mol << "   &EWALD\n";
-				mol << "     EWALD_TYPE NONE\n";
+				mol << "     EWALD_TYPE " << m_ewaldType << "\n";
 				mol << "   &END EWALD\n";
 				mol << "  &END POISSON\n";
 
@@ -167,7 +179,7 @@ namespace Avogadro
 		{
 
 			// DFT
-			if( m_qmCalcType == "DFT" )
+			if( m_qmMethod == "DFT" )
 			{
 			   mol << " METHOD QS\n";
 			   mol << " &DFT\n";
@@ -175,6 +187,7 @@ namespace Avogadro
 			   mol << "  BASIS_SET_FILE_NAME  GTH_BASIS_SETS\n";
 			   mol << "  POTENTIAL_FILE_NAME  POTENTIAL\n";
 			   mol << "  &MGRID\n";
+			   mol << "   NGRIDS " << m_nMultiGrid << "\n";
 			   mol << "   CUTOFF 200\n";
 			   mol << "  &END MGRID\n";
 
@@ -186,7 +199,7 @@ namespace Avogadro
 			   mol << " &END DFT\n";
 			}
 
-			else if( m_qmCalcType == "DFTB-SCC" )
+			else if (m_qmMethod == "DFTB-SCC")
 			{
 			   mol << "# Please copy scc folder (which may have been in data/DFTB or tests/DFTB ) \n";
 			   mol << "# and its contents to ../(cp2k executable directory)\n";
@@ -215,7 +228,7 @@ namespace Avogadro
 			   mol << " &END DFT\n";
 			}
 
-			else if( m_qmCalcType == "DFTB-NONSCC" )
+			else if (m_qmMethod == "DFTB-NONSCC")
 			{
 			   mol << "# Please copy nonscc folder (which may have been in data/DFTB or tests/DFTB ) \n";
 			   mol << "# and its contents to ../(cp2k executable directory)\n";
@@ -244,7 +257,7 @@ namespace Avogadro
 			   mol << " &END DFT\n";
 			}
 
-			else if( m_qmCalcType == "SE-PM6" )
+			else if (m_qmMethod == "SE-PM6")
 			{
 			   mol << " METHOD QS\n";
 			   mol << " &DFT\n";
@@ -312,7 +325,7 @@ namespace Avogadro
 
 
 		// Atom kind for DFT
-		 if( m_molecule != NULL && (&atomKind != NULL) && (m_qmRadioChecked) && (m_qmCalcType == "DFT") )
+		 if( m_molecule != NULL && (&atomKind != NULL) && (m_qmRadioChecked) && (m_qmMethod == "DFT") )
 		 {
 			 setAtomKind();
 
@@ -416,6 +429,7 @@ namespace Avogadro
 			break;
 		default:
 			m_runType = "ENERGY";
+			break;
 
 	  }
 
@@ -423,29 +437,56 @@ namespace Avogadro
 
   }
 
-  void Cp2kInputDialog::setQmCalcType(int n)
+  void Cp2kInputDialog::setEwaldType(int n)
+  {
+	  switch (n)
+	  {
+	  case 0:
+		  m_ewaldType = "NONE";
+		  break;
+	  case 1:
+		  m_ewaldType = "EWALD";
+		  break;
+	  case 2:
+		  m_ewaldType = "PME";
+		  break;
+	  case 3:
+		  m_ewaldType = "SPME";
+		  break;
+	  default:
+		  m_ewaldType = "NONE";
+		  break;
+	  }
+
+	  updatePreviewText();
+  }
+
+  void Cp2kInputDialog::setQmMethod(int n)
   {
 	  switch(n)
 	  {
 	    case 0:
-			m_qmCalcType = "DFT";
+			m_qmMethod = "DFT";
 			break;
 	    case 1:
-			m_qmCalcType = "DFTB-SCC";
+			m_qmMethod = "DFTB-SCC";
 			break;
 		case 2:
-			m_qmCalcType = "DFTB-NONSCC";
+			m_qmMethod = "DFTB-NONSCC";
 			break;
 		case 3:
-			m_qmCalcType = "SE-PM6";
+			m_qmMethod = "SE-PM6";
 			break;
 		default:
-			m_qmCalcType = "DFT";
+			m_qmMethod = "DFT";
+			break;
 
 	  }
 
 	  updatePreviewText();
   }
+
+  
 
   // Extracts atom kinds
   void Cp2kInputDialog::setAtomKind()
@@ -520,8 +561,13 @@ namespace Avogadro
 	  m_mmRadioChecked = true;
 	  m_qmRadioChecked = false;
 
-	  //ui.mmTab->show();
-	  //ui.qmTab->hide();
+	  /*
+	  ui.qmMethodLabel->hide();
+	  ui.qmMethodCombo->hide();
+	  */
+
+	  ui.mmTab->setEnabled(true);
+	  ui.qmTab->setEnabled(false);
 
 	  updatePreviewText();
   }
@@ -531,8 +577,13 @@ namespace Avogadro
 	  m_mmRadioChecked = false;
 	  m_qmRadioChecked = true;
 
-	  //ui.mmTab->hide();
-	  //ui.qmTab->show();
+	  /*
+	  ui.qmMethodLabel->show();
+	  ui.qmMethodCombo->show();
+	  */
+
+	  ui.mmTab->setEnabled(false);
+	  ui.qmTab->setEnabled(true);
 
 	  updatePreviewText();
   }
@@ -584,6 +635,13 @@ namespace Avogadro
     m_savePath = QFileInfo(file).absolutePath();
 
     return fileName;
+  }
+
+
+  void Cp2kInputDialog::setNMultiGrid( int n )
+  {
+	  m_nMultiGrid = n;
+	  updatePreviewText();
   }
 }
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>625</width>
+    <width>620</width>
     <height>406</height>
    </rect>
   </property>
@@ -30,7 +30,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>10</y>
+     <y>20</y>
      <width>591</width>
      <height>171</height>
     </rect>
@@ -172,12 +172,55 @@
     <attribute name="title">
      <string>MM</string>
     </attribute>
+    <widget class="QComboBox" name="ewaldTypeCombo">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>20</y>
+       <width>91</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>no Ewald</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Ewald</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>PME</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>SPME</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="ewaldTypeLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>20</y>
+       <width>81</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Ewald Type:</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="qmTab">
     <attribute name="title">
      <string>QM</string>
     </attribute>
-    <widget class="QComboBox" name="qmCalcTypeCombo">
+    <widget class="QComboBox" name="qmMethodCombo">
      <property name="geometry">
       <rect>
        <x>80</x>
@@ -207,17 +250,40 @@
       </property>
      </item>
     </widget>
-    <widget class="QLabel" name="qmCalcTypeLabel">
+    <widget class="QLabel" name="qmMethodLabel">
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>20</y>
+       <y>10</y>
        <width>50</width>
        <height>12</height>
       </rect>
      </property>
      <property name="text">
-      <string>Calc.Type:</string>
+      <string>Method:</string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="nMGridSpin">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>10</y>
+       <width>41</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="nMGridLabel">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>10</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>#MultiGrid:</string>
      </property>
     </widget>
    </widget>
