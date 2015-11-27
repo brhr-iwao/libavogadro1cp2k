@@ -58,11 +58,14 @@ namespace Avogadro
 	QString m_projectName;
 	// runType m_runType; 
 	QString m_runType;
-    // Molecule* m_molecule;
 	QString m_ewaldType;
 
 	QString m_qmMethod;
+	QString m_basis;
+	QString m_functional;
+
 	int m_nMultiGrid;
+	int m_cutOff;
 
     ConstraintsModel *m_constraints;
 
@@ -94,6 +97,7 @@ namespace Avogadro
 	void setEwaldType(int);
 	void setQmMethod(int);
 	void setNMultiGrid(int);
+	void setCutOff(int);
 
   protected:
 	QString saveInputFile(QString inputDeck, QString fileType, QString ext);

@@ -54,6 +54,7 @@ namespace Avogadro
 
 	  connect(ui.qmMethodCombo,SIGNAL(currentIndexChanged(int)),this, SLOT(setQmMethod(int)) );
 	  connect(ui.nMGridSpin, SIGNAL(valueChanged(int)), this, SLOT(setNMultiGrid(int)));
+	  connect(ui.cutOffSpin, SIGNAL(valueChanged(int)), this, SLOT(setCutOff(int)));
 
 	  m_projectName = "myProject";
       ui.projectNameLine->insert( m_projectName );
@@ -65,6 +66,11 @@ namespace Avogadro
 	  ui.nMGridSpin->setRange(1,10);
 	  ui.nMGridSpin->setSingleStep(1);
 	  ui.nMGridSpin->setValue(4);
+
+	  m_cutOff = 30;
+	  ui.cutOffSpin->setRange(1, 1000);
+	  ui.cutOffSpin->setSingleStep(1);
+	  ui.cutOffSpin->setValue(30);
 
 	  /*
 	  ui.mmRadioButton->setChecked(false);
@@ -188,7 +194,7 @@ namespace Avogadro
 			   mol << "  POTENTIAL_FILE_NAME  POTENTIAL\n";
 			   mol << "  &MGRID\n";
 			   mol << "   NGRIDS " << m_nMultiGrid << "\n";
-			   mol << "   CUTOFF 200\n";
+			   mol << "   CUTOFF " << m_cutOff << "\n";
 			   mol << "  &END MGRID\n";
 
 			   mol << "  &XC\n";
@@ -367,7 +373,7 @@ namespace Avogadro
 
 			  else
 			  {
-				  mol << tr("   ABC 50 50 50 # Provisional Cell Param. Please 'Add Unit Cell'!\n");
+				  mol << tr("   ABC 50 50 50 # Provisional Cell Param. Please \"Add Unit Cell\" !\n");
 			  }
 
 		 }
@@ -643,5 +649,12 @@ namespace Avogadro
 	  m_nMultiGrid = n;
 	  updatePreviewText();
   }
+
+   void Cp2kInputDialog::setCutOff( int n )
+  {
+	  m_cutOff = n;
+	  updatePreviewText();
+  }
+
 }
 

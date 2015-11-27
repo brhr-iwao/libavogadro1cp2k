@@ -30,10 +30,13 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>20</y>
+     <y>10</y>
      <width>591</width>
      <height>171</height>
     </rect>
+   </property>
+   <property name="toolTip">
+    <string>The cutoff of the finest grid level</string>
    </property>
    <property name="currentIndex">
     <number>0</number>
@@ -126,7 +129,7 @@
       </rect>
      </property>
      <property name="toolTip">
-      <string>Electronic calculation method.</string>
+      <string>Electronic calculation method</string>
      </property>
      <property name="autoFillBackground">
       <bool>false</bool>
@@ -149,6 +152,9 @@
         <height>16</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>Moleular Mechanics (Classical)</string>
+      </property>
       <property name="text">
        <string>MM</string>
       </property>
@@ -162,6 +168,9 @@
         <height>16</height>
        </rect>
       </property>
+      <property name="toolTip">
+       <string>Quantum Mechanics</string>
+      </property>
       <property name="text">
        <string>QM</string>
       </property>
@@ -169,6 +178,9 @@
     </widget>
    </widget>
    <widget class="QWidget" name="mmTab">
+    <property name="toolTip">
+     <string>Molcular Mechanics (Classical)</string>
+    </property>
     <attribute name="title">
      <string>MM</string>
     </attribute>
@@ -217,6 +229,9 @@
     </widget>
    </widget>
    <widget class="QWidget" name="qmTab">
+    <property name="toolTip">
+     <string>Quantum Mehanics</string>
+    </property>
     <attribute name="title">
      <string>QM</string>
     </attribute>
@@ -253,10 +268,10 @@
     <widget class="QLabel" name="qmMethodLabel">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>10</y>
+       <x>10</x>
+       <y>12</y>
        <width>50</width>
-       <height>12</height>
+       <height>20</height>
       </rect>
      </property>
      <property name="text">
@@ -266,9 +281,9 @@
     <widget class="QSpinBox" name="nMGridSpin">
      <property name="geometry">
       <rect>
-       <x>310</x>
+       <x>320</x>
        <y>10</y>
-       <width>41</width>
+       <width>61</width>
        <height>22</height>
       </rect>
      </property>
@@ -284,6 +299,81 @@
      </property>
      <property name="text">
       <string>#MultiGrid:</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="cutOffLabel">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>40</y>
+       <width>61</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>CutOff (Ry):</string>
+     </property>
+     <property name="text">
+      <string>CutOff(Ry):</string>
+     </property>
+    </widget>
+    <widget class="QSpinBox" name="cutOffSpin">
+     <property name="geometry">
+      <rect>
+       <x>320</x>
+       <y>40</y>
+       <width>61</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>The cutoff of the finest grid level</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="basisLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>42</y>
+       <width>50</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Basis:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="basisCombo">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>40</y>
+       <width>121</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="functionalLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>61</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Functional:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="functionalCombo">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>70</y>
+       <width>121</width>
+       <height>22</height>
+      </rect>
      </property>
     </widget>
    </widget>
