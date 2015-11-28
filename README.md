@@ -32,7 +32,7 @@ and execute the command "nmake cp2kinputextension".
 4. If nmake completes successfully, cp2kinputextension.dll is created in (avogadro root)/scripts/lib (or (avogadro root)/scripts/lib/Release).
  Put this dll in (Avogadro install dir, maybe C:/Program Files/Avogadro)/lib/avogadro/1_1/extensions/.
  
-5. If you get "Psf/Pot..." and "CP2K Input..."entry in Avogadro "Extensions" menu, the installation was successful.
+5. If you get "Psf/Pot..." and "CP2K Input..."entries in Avogadro "Extensions" menu, the installation was successful.
 
 ### Usage
 Load the molecule you want to work with on Avogadro and then select "Psf/Pot..." or "CP2K Input..." in "Extensions" menu.
