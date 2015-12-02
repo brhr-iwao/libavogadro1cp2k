@@ -3,8 +3,8 @@
 
   Copyright (C) Aoyama Iwao
 
-  This file is part of the Avogadro molecular editor project.
-  For more information, see <http://avogadro.cc/>
+  This file is not yet a part of the Avogadro molecular editor project.
+  For more information about Avogadro, see <http://avogadro.cc/>
 
   Some code is based on Open Babel
   For more information, see <http://openbabel.sourceforge.net/>
@@ -42,50 +42,58 @@ namespace Avogadro
   {
 	  ui.setupUi(this);
 
+	  // Connect Qt signal/slots
+      // Buttons
+	  connect(ui.closeButton, SIGNAL(clicked()), this, SLOT(closeClicked()) );
+	  connect(ui.generateButton, SIGNAL(clicked()), this, SLOT(generateClicked()) );
+	  connect(ui.resetButton, SIGNAL(clicked()), this, SLOT(resetClicked()) );
+
+	  // Basic tab
 	  connect(ui.projectNameLine, SIGNAL(editingFinished()),this, SLOT(setProjectName()) );
 	  connect(ui.runTypeCombo, SIGNAL(currentIndexChanged(int)),this, SLOT(setRunType(int)));
-	  connect(ui.closeButton, SIGNAL(clicked()), this, SLOT(close()) );
-	  connect(ui.generateButton, SIGNAL(clicked()), this, SLOT(generateClicked()) );
 
 	  connect(ui.mmRadioButton, SIGNAL(clicked()), this, SLOT(mmRadioChecked()) );
 	  connect(ui.qmRadioButton, SIGNAL(clicked()), this, SLOT(qmRadioChecked()) );
 
+	  // MM tab
+	  connect(ui.emaxSplineDoubleSpin, SIGNAL(valueChanged(double)), this, SLOT(setEmaxSpline(double)));
 	  connect(ui.ewaldTypeCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(setEwaldType(int)));
 
+	  // QM tab
 	  connect(ui.qmMethodCombo,SIGNAL(currentIndexChanged(int)),this, SLOT(setQmMethod(int)) );
+	  connect(ui.chargeSpin, SIGNAL(valueChanged(int)), this, SLOT(setCharge(int)));
+	  connect(ui.multiplicitySpin, SIGNAL(valueChanged(int)), this, SLOT(setMultiplicity(int)));
+
+	  // DFT tab
+	  connect(ui.basisSetCombo,SIGNAL(currentIndexChanged(int)),this, SLOT(setBasisSet(int)) );
+	  connect(ui.functionalCombo,SIGNAL(currentIndexChanged(int)),this, SLOT(setFunctional(int)) );
 	  connect(ui.nMGridSpin, SIGNAL(valueChanged(int)), this, SLOT(setNMultiGrid(int)));
 	  connect(ui.cutOffSpin, SIGNAL(valueChanged(int)), this, SLOT(setCutOff(int)));
 
-	  m_projectName = "myProject";
-      ui.projectNameLine->insert( m_projectName );
-	  m_runType = "ENERGY";
-	  m_ewaldType = "NONE";
-	  m_qmMethod = "DFT";
+	  // Initial settings
+	  // Basic tab
 
-	  m_nMultiGrid = 4;
+	  // MM tab
+	  ui.emaxSplineDoubleSpin->setRange( 0.0, 1000.0 );
+	  ui.emaxSplineDoubleSpin->setSingleStep( 0.1 );
+
+
+	  // QM tab
+	  ui.chargeSpin->setRange(-10, 10);
+	  ui.chargeSpin->setSingleStep(1);
+
+	  ui.multiplicitySpin->setRange(1, 10);
+	  ui.multiplicitySpin->setSingleStep(1);
+
+	  // DFT tab
 	  ui.nMGridSpin->setRange(1,10);
 	  ui.nMGridSpin->setSingleStep(1);
-	  ui.nMGridSpin->setValue(4);
 
-	  m_cutOff = 30;
 	  ui.cutOffSpin->setRange(1, 1000);
 	  ui.cutOffSpin->setSingleStep(1);
-	  ui.cutOffSpin->setValue(30);
 
-	  /*
-	  ui.mmRadioButton->setChecked(false);
-	  ui.qmRadioButton->setChecked(true);
-	  m_mmRadioChecked = false;
-	  m_qmRadioChecked = true;
-	  */
-
-	  ui.mmRadioButton->setChecked(true);
-	  ui.qmRadioButton->setChecked(false);
-	  mmRadioChecked();
-	  /*
-	  m_mmRadioChecked = true;
-	  m_qmRadioChecked = false;
-	  */
+	  QSettings settings;
+      readSettings(settings);
 
 	  updatePreviewText();
 
@@ -93,13 +101,16 @@ namespace Avogadro
 
   Cp2kInputDialog::~Cp2kInputDialog()
   {
+	  // the following codes don't work.
+	  QSettings settings;
+      writeSettings(settings);
 
   }
 
   void Cp2kInputDialog::setMolecule(Molecule *molecule)
   {
-	  // Disconnect the old molecule first...
-	  if (m_molecule) disconnect(m_molecule, 0, this, 0);
+	// Disconnect the old molecule first...
+	if (m_molecule) disconnect(m_molecule, 0, this, 0);
    
     m_molecule = molecule;
 
@@ -112,24 +123,91 @@ namespace Avogadro
 
   }
 
-
-
   void Cp2kInputDialog::setModel(ConstraintsModel *model)
   {
 	  if (m_constraints) disconnect(m_constraints, 0, this, 0);
       m_constraints = model;
   }
 
-
-  void Cp2kInputDialog::readSettings(QSettings&)
+  void Cp2kInputDialog::writeSettings(QSettings &settings) const
   {
+    // Basic tab
+	 settings.setValue("CP2K/ProjectName", ui.projectNameLine->displayText() );
+     settings.setValue("CP2K/RunType", ui.runTypeCombo->currentIndex());
+	 settings.setValue("CP2K/mmRadio", m_mmRadioChecked );
+	 settings.setValue("CP2K/qmRadio", m_qmRadioChecked );
+
+	 // MM tab
+     settings.setValue("CP2K/EmaxSpline", ui.emaxSplineDoubleSpin->value() );
+	 settings.setValue("CP2K/EwaldType", ui.ewaldTypeCombo->currentIndex() );
+
+	 // QM tab
+	 settings.setValue("CP2K/QmMethod", ui.qmMethodCombo->currentIndex() );
+	 settings.setValue("CP2K/Charge", ui.chargeSpin->value() );
+	 settings.setValue("CP2K/Multiplicity", ui.multiplicitySpin->value() );
+
+	 // DFT tab
+	 settings.setValue( "CP2K/BasisSet", ui.basisSetCombo->currentIndex() );
+	 settings.setValue( "CP2K/Functional", ui.functionalCombo->currentIndex() );
+
+	 settings.setValue( "CP2K/NMultiGrid", ui.nMGridSpin->value() );
+	 settings.setValue( "CP2K/CutOff", ui.cutOffSpin->value() );
+
+	 settings.setValue("CP2K/SavePath", m_savePath);
 
   }
 
-  void Cp2kInputDialog::writeSettings(QSettings&) const
+
+  void Cp2kInputDialog::readSettings(QSettings &settings)
   {
+	 // Basic tab
+	 QVariant defaultProjectName("myProject");
+     m_projectName = settings.value("CP2K/ProjectName", defaultProjectName ).toString();
+     ui.projectNameLine->setText(m_projectName);
+	  
+	 ui.runTypeCombo->setCurrentIndex(settings.value("CP2K/RunType", 0).toInt()); 
+	 setRunType( settings.value( "CP2K/RunType", 0).toInt() );
+
+	 ui.mmRadioButton->setChecked( settings.value("CP2K/mmRadio", true).toBool() );
+	 ui.qmRadioButton->setChecked( settings.value("CP2K/qmRadio", false).toBool() );
+
+	 if( settings.value("CP2K/mmRadio", true).toBool() ) mmRadioChecked();
+	 else qmRadioChecked();
+
+	 // MM tab
+	 ui.emaxSplineDoubleSpin->setValue(settings.value("CP2K/EmaxSpline",0.5 ).toDouble() );
+	 setEmaxSpline( settings.value("CP2K/EmaxSpline",0.5 ).toDouble() );
+
+	 ui.ewaldTypeCombo->setCurrentIndex( settings.value("CP2K/EwaldType", 0 ).toInt() );
+	 setEwaldType( settings.value("CP2K/EwaldType", 0 ).toInt() );
+
+	 // QM tab
+	 ui.qmMethodCombo->setCurrentIndex(settings.value("CP2K/QmMethod", 0).toInt() );
+	 setQmMethod( settings.value("CP2K/QmMethod", 0).toInt() );
+
+	 ui.chargeSpin->setValue(settings.value("CP2K/Charge", 0 ).toInt() );
+	 setCharge( settings.value("CP2K/Charge", 0 ).toInt() );
+
+	 ui.multiplicitySpin->setValue(settings.value("CP2K/Multiplicity", 1).toInt() );
+	 setMultiplicity(settings.value("CP2K/Multiplicity", 1).toInt());
+
+	 // DFT tab
+	 ui.basisSetCombo->setCurrentIndex( settings.value("CP2K/BasisSet", 0 ).toInt() );
+	 setBasisSet( settings.value("CP2K/BasisSet", 0 ).toInt() );
+
+	 ui.functionalCombo->setCurrentIndex( settings.value("CP2K/Functional", 0 ).toInt() );
+	 setFunctional( settings.value("CP2K/Functional", 0 ).toInt() );
+
+	 ui.nMGridSpin->setValue( settings.value("CP2K/NMultiGrid", 4 ).toInt() );
+	 setNMultiGrid( settings.value("CP2K/NMultiGrid", 4 ).toInt() );
+
+	 ui.cutOffSpin->setValue( settings.value("CP2K/CutOff", 30 ).toInt() );
+	 setCutOff(settings.value("CP2K/CutOff", 30 ).toInt());
+
+	 m_savePath = settings.value("CP2K/SavePath").toString();
 
   }
+
 
   QString Cp2kInputDialog::generateInputDeck()
   {
@@ -169,6 +247,10 @@ namespace Avogadro
 
 				mol << "   IGNORE_MISSING_CRITICAL_PARAMS T\n";
 
+				mol << "   &SPLINE\n";
+				mol << "     EMAX_SPLINE " << m_emaxSpline << "\n";
+				mol << "   &END SPLINE\n";
+
 				mol << "  &END FORCEFIELD\n";
 
 				mol << "  &POISSON\n";
@@ -187,8 +269,14 @@ namespace Avogadro
 			// DFT
 			if( m_qmMethod == "DFT" )
 			{
+			   mol << tr("# Please copy the GTH_BASIS_SETS and POTENTIAL files, \n");
+			   mol << tr("# which may have been in cp2k-2.x.x/data or cp2k-2.x.x/tests/QS directory,\n");
+			   mol << tr("# to the CP2K executable directory if you use these default files.\n");
+
 			   mol << " METHOD QS\n";
 			   mol << " &DFT\n";
+			   mol << "   CHARGE " << m_charge << "\n";
+			   mol << "   MULTIPLICITY " << m_multiplicity << "\n";
 
 			   mol << "  BASIS_SET_FILE_NAME  GTH_BASIS_SETS\n";
 			   mol << "  POTENTIAL_FILE_NAME  POTENTIAL\n";
@@ -198,7 +286,7 @@ namespace Avogadro
 			   mol << "  &END MGRID\n";
 
 			   mol << "  &XC\n";
-               mol << "   &XC_FUNCTIONAL BLYP\n"; 
+               mol << "   &XC_FUNCTIONAL " << m_functional << "\n"; 
                mol << "   &END XC_FUNCTIONAL\n";
                mol << "  &END XC\n";
 
@@ -207,9 +295,13 @@ namespace Avogadro
 
 			else if (m_qmMethod == "DFTB-SCC")
 			{
-			   mol << "# Please copy scc folder (which may have been in data/DFTB or tests/DFTB ) \n";
-			   mol << "# and its contents to ../(cp2k executable directory)\n";
+			   mol << tr("# Please copy the scc folder,\n");
+               mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB,\n" );
+			   mol << tr("# and its contents to ../(cp2k executable directory).\n");
+
 			   mol << " &DFT\n";
+			   mol << "   CHARGE " << m_charge << "\n";
+			   mol << "   MULTIPLICITY " << m_multiplicity << "\n";
 			   mol << "  &QS\n";
 			   mol << "   METHOD DFTB\n";
 
@@ -236,9 +328,13 @@ namespace Avogadro
 
 			else if (m_qmMethod == "DFTB-NONSCC")
 			{
-			   mol << "# Please copy nonscc folder (which may have been in data/DFTB or tests/DFTB ) \n";
-			   mol << "# and its contents to ../(cp2k executable directory)\n";
+			   mol << tr("# Please copy the nonscc folder,\n");
+			   mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB,\n" );
+			   mol << tr("# and its contents to ../(cp2k executable directory).\n");
+
 			   mol << " &DFT\n";
+			   mol << "   CHARGE " << m_charge << "\n";
+			   mol << "   MULTIPLICITY " << m_multiplicity << "\n";
 			   mol << "  &QS\n";
 			   mol << "   METHOD DFTB\n";
 
@@ -267,6 +363,8 @@ namespace Avogadro
 			{
 			   mol << " METHOD QS\n";
 			   mol << " &DFT\n";
+			   mol << "   CHARGE " << m_charge << "\n";
+			   mol << "   MULTIPLICITY " << m_multiplicity << "\n";
 			   mol << "  &QS\n";
 			   mol << "   METHOD PM6\n";
 			   mol << "   &SE\n";
@@ -340,8 +438,8 @@ namespace Avogadro
 		     {
 		         mol << "   &KIND " << atomKind[i] << "\n";
 
-				 mol  << "    BASIS_SET DZVP-GTH\n"
-					  << "    POTENTIAL "
+				 mol  << "    BASIS_SET " << m_basisSet << "\n";
+				 mol  << "    POTENTIAL " 
 					  << potentialName( atomKind[i] )
                       << "\n";
 
@@ -395,6 +493,55 @@ namespace Avogadro
 
   void Cp2kInputDialog::resetClicked()
   {
+	  // Confirmation is need!
+
+	  // Basic Tab
+	  m_projectName = "myProject";
+      ui.projectNameLine->setText( m_projectName );
+
+	  // m_runType = "ENERGY";
+	  ui.runTypeCombo->setCurrentIndex(0);
+	  setRunType(0);
+
+	  ui.mmRadioButton->setChecked(true);
+	  ui.qmRadioButton->setChecked(false);
+	  mmRadioChecked();
+
+	  // MM tab
+	  m_emaxSpline = 0.5;
+	  ui.emaxSplineDoubleSpin->setValue( m_emaxSpline );
+
+	  // m_ewaldType = "NONE";
+	  ui.ewaldTypeCombo->setCurrentIndex(0);
+	  setEwaldType( 0 );
+
+	  // QM tab
+	  // m_qmMethod = "DFT";
+	  ui.qmMethodCombo->setCurrentIndex(0);
+	  setQmMethod(0);
+
+	  m_charge = 0;
+	  ui.chargeSpin->setValue( m_charge );
+
+	  m_multiplicity = 1;
+	  ui.multiplicitySpin->setValue( m_multiplicity );
+
+	  // DFT tab
+	  // m_basisSet = "SZV-GTH";
+	  ui.basisSetCombo->setCurrentIndex(0);
+	  setBasisSet(0);
+
+	  // m_functional = "BLYP";
+	  ui.functionalCombo->setCurrentIndex(0);
+	  setFunctional(0);
+
+	  m_nMultiGrid = 4;
+	  ui.nMGridSpin->setValue( m_nMultiGrid );
+
+	  m_cutOff = 30;
+	  ui.cutOffSpin->setValue( m_cutOff) ;
+
+
 
   }
 
@@ -403,13 +550,20 @@ namespace Avogadro
 
 	 saveInputFile( ui.previewText->toPlainText(),
                           tr("Cp2k Input File"), QString("inp"));
+ 
+  }
 
-  
+  void Cp2kInputDialog::closeClicked()
+  {
+	  QSettings settings;
+      writeSettings(settings);
+
+	  close();
   }
 
   void Cp2kInputDialog::setProjectName()
   {
-	m_projectName = ui.projectNameLine->text();
+	m_projectName = ui.projectNameLine->displayText();
     updatePreviewText();
   
   }
@@ -492,6 +646,60 @@ namespace Avogadro
 	  updatePreviewText();
   }
 
+  void Cp2kInputDialog::setBasisSet(int n)
+  {
+	  switch(n)
+	  {
+	    case 0:
+		    m_basisSet = "SZV-GTH";
+		    break;
+		case 1:
+			m_basisSet = "DZV-GTH";
+		    break;
+		case 2:
+			m_basisSet = "DZVP-GTH";
+            break;
+		case 3:
+			m_basisSet = "TZVP-GTH";
+			break;
+		case 4:
+			m_basisSet = "TZV2P-GTH";
+			break;
+		default:
+			m_basisSet = "SZV-GTH";
+			break;
+	  }
+
+	  updatePreviewText();
+  }
+
+  void Cp2kInputDialog::setFunctional(int n)
+  {
+	  switch(n)
+	  {
+	     case 0:
+			 m_functional = "BLYP";
+			 break;
+		 case 1:
+		     m_functional = "BP";
+			 break;
+		 case 2:
+			 m_functional = "HCTH120";
+			 break;
+		 case 3:
+			 m_functional = "PADE";
+			 break;
+		 case 4:
+			 m_functional = "PBE";
+			 break;
+		 default:
+			 m_functional = "BLYP";
+			 break;
+	  }
+
+     updatePreviewText();
+
+  }
   
 
   // Extracts atom kinds
@@ -523,33 +731,35 @@ namespace Avogadro
 	  return;
   }
 
-  // temporary function
+
   QString Cp2kInputDialog::potentialName( QString atomType )
   {
-	  /*
-     if( atomType == "H" )
-		 return "GTH-BLYP-q1";
-	 else
-		 return "";
-	  */
 
-	  QString potName("GTH-BLYP-q");
+	  QString potName("GTH-");
+	  potName.append( m_functional );
+	  potName.append( "-q" );
+
 	  int iAtomicNum = etab.GetAtomicNum( atomType.toStdString().c_str() );
       int iValenceElec = 0;
 
-     if( iAtomicNum == 1 || iAtomicNum == 2 )
+     if( iAtomicNum >= 1 && iAtomicNum <= 4 ) // From H to Be
 	    { iValenceElec = iAtomicNum; }
 
-	 else if( iAtomicNum >= 3 && iAtomicNum <= 10 )
+	 else if( iAtomicNum >= 5 && iAtomicNum <= 12 ) // From B to Mg
 	    { iValenceElec = iAtomicNum - 2;}
 
-	 else if( iAtomicNum >= 11 && iAtomicNum <= 18 )
+	 else if( iAtomicNum >= 13 && iAtomicNum <= 28 ) // From Al to Ni
 	    { iValenceElec = iAtomicNum - 10;}
 
+	 else if( iAtomicNum >= 29 && iAtomicNum <= 31 ) // Cu, Zn, Ga
+        { iValenceElec = iAtomicNum - 18;}
+
+	 else if( iAtomicNum >= 32 && iAtomicNum <= 36 ) // Ge, As, Br, Kr
+		 { iValenceElec = iAtomicNum - 28;}
 
 	  if( iValenceElec == 0 )
 	  {
-		  potName = "#type pseuopotential functional";
+		  potName = tr("# type pseudopotential functional name !");
 		  return potName;
 	  }
 
@@ -574,6 +784,7 @@ namespace Avogadro
 
 	  ui.mmTab->setEnabled(true);
 	  ui.qmTab->setEnabled(false);
+	  ui.dftTab->setEnabled(false);
 
 	  updatePreviewText();
   }
@@ -590,6 +801,7 @@ namespace Avogadro
 
 	  ui.mmTab->setEnabled(false);
 	  ui.qmTab->setEnabled(true);
+	  ui.dftTab->setEnabled(true);
 
 	  updatePreviewText();
   }
@@ -643,6 +855,23 @@ namespace Avogadro
     return fileName;
   }
 
+  void Cp2kInputDialog::setEmaxSpline( double value )
+  {
+	  m_emaxSpline = value;
+	  updatePreviewText();
+  }
+
+  void Cp2kInputDialog::setCharge( int n )
+  {
+	  m_charge = n;
+	  updatePreviewText();
+  }
+
+  void Cp2kInputDialog::setMultiplicity( int n )
+  {
+	  m_multiplicity = n;
+	  updatePreviewText();
+  }
 
   void Cp2kInputDialog::setNMultiGrid( int n )
   {

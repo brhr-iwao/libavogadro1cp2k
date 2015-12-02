@@ -3,8 +3,8 @@
 
   Copyright (C) Aoyama Iwao
 
-  This file is part of the Avogadro molecular editor project.
-  For more information, see <http://avogadro.cc/>
+  This file is not yet a part of the Avogadro molecular editor project.
+  For more information about Avogadro, see <http://avogadro.cc/>
 
   Some code is based on Open Babel
   For more information, see <http://openbabel.sourceforge.net/>

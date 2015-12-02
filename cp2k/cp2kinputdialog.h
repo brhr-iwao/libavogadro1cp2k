@@ -3,8 +3,8 @@
 
   Copyright (C) Aoyama Iwao
 
-  This file is part of the Avogadro molecular editor project.
-  For more information, see <http://avogadro.cc/>
+  This file is not yet a part of the Avogadro molecular editor project.
+  For more information about Avogadro, see <http://avogadro.cc/>
 
   Some code is based on Open Babel
   For more information, see <http://openbabel.sourceforge.net/>
@@ -45,32 +45,37 @@ namespace Avogadro
     ~Cp2kInputDialog();
 
 	void setMolecule(Molecule *molecule);
-	void readSettings(QSettings&);
+
     void writeSettings(QSettings&) const;
+	void readSettings(QSettings&);
 
 	void setModel(ConstraintsModel *model);
-
-	// enum runType{ENERGY, ENERGY_FORCE, MD, GEO_OPT, MC};
 
   private:
     Ui::Cp2kInputDialog ui;
 	
+	// basic tab
 	QString m_projectName;
-	// runType m_runType; 
 	QString m_runType;
+
+    bool m_mmRadioChecked;
+	bool m_qmRadioChecked;
+
+	// MM tab
+	double m_emaxSpline;
 	QString m_ewaldType;
 
+	// QM tab
 	QString m_qmMethod;
-	QString m_basis;
+
+	// DFT tab
+	QString m_basisSet;
 	QString m_functional;
 
 	int m_nMultiGrid;
 	int m_cutOff;
 
     ConstraintsModel *m_constraints;
-
-	bool m_mmRadioChecked;
-	bool m_qmRadioChecked;
 
 	std::vector<QString> atomKind;
 
@@ -91,11 +96,24 @@ namespace Avogadro
     //! Button Slots
     void resetClicked();
     void generateClicked();
+	void closeClicked();
 
+	// basic tab
 	void setProjectName();
 	void setRunType(int);
+
+	// MM tab
+    void setEmaxSpline(double);
 	void setEwaldType(int);
+
+	// QM tab
 	void setQmMethod(int);
+	void setCharge(int);
+	void setMultiplicity(int);
+
+	// DFT tab
+    void setBasisSet(int);
+	void setFunctional(int);
 	void setNMultiGrid(int);
 	void setCutOff(int);
 
