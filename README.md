@@ -13,8 +13,8 @@ An easy way to use libavogadro1cp2k is to use with precompiled [Avogadro](http:/
 
 1. Download Avogadro Installer for Windows (Avogadro-1.1.1-win32.exe) from [Sourceforge] (http://sourceforge.net/projects/avogadro/) and install the Avogadro binary on your Windows PC.
 2. Copy [released cp2kinputextension.dll] (https://github.com/brhr-iwao/libavogadro1cp2k/releases) to (Avogadro install directory, maybe C:\Program Files\Avogadro)\lib\Avogadro\1_1\ extensions directory.
-3. Launch Avogadro. If you find 'Psf/Pot...' and 'CP2K Input...' entries in 'Extensions' menu, the installation was 
-successful.
+3. In order to use the pot generator, it is necessary to put gaff.dat, which is a plain text file and found in http://archive.ambermd.org/201111/att-0689/gaff.dat, in either directory of (Avogadro install directory, maybe C:\Program Files\Avogadro) or (Avogadro install directory)/bin depending on your environment. In my experience, Windows XP is former case, Windows 10 is latter one.
+4. Launch Avogadro. If you find 'Psf/Pot...' and 'CP2K Input...' entries in 'Extensions' menu, the installation was successful.
 
 #### Compiling with Visual Studio
 Here I described only a way to intall on Windows from sources since I worked only on Windows...
