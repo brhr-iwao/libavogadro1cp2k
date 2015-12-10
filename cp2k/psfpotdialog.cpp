@@ -23,6 +23,7 @@
 
 #include <avogadro/molecule.h>
 #include <avogadro/atom.h>
+#include <avogadro/residue.h>
 
 //#include <openbabel/mol.h>
 
@@ -31,6 +32,7 @@
 #include <openbabel/mol.h>
 //#include <openbabel/obconversion.h>
 #include <openbabel/forcefield.h>
+#include <openbabel/residue.h>
 
 
 #include <QString>
@@ -55,11 +57,16 @@ namespace Avogadro
 
 	  Updated = true;
 
+	  QSettings settings;
+	  readSettings( settings );
+
 	  updatePreviewText();
   }
 
   PsfPotDialog::~PsfPotDialog()
   {
+	  QSettings settings;
+	  writeSettings( settings );
   }
 
   void PsfPotDialog::setMolecule(Molecule *molecule)
@@ -72,21 +79,26 @@ namespace Avogadro
        m_molecule = molecule;
   }
 
-  void PsfPotDialog::readSettings(QSettings&)
+  void PsfPotDialog::readSettings(QSettings &settings )
   {
+	  m_savePath = settings.value("PsfPot/SavePath").toString();
+
   }
 
-  void PsfPotDialog::writeSettings(QSettings&) const
+  void PsfPotDialog::writeSettings(QSettings &settings) const
   {
+	  settings.setValue("PsfPot/SavePath", m_savePath);
   }
 
   QString PsfPotDialog::psfPreviewPane()
   {
+	  // GAFF case
 	  return psfGaff();
   }
 
   QString PsfPotDialog::potPreviewPane()
   {
+	  // GAFF case
 	  return potGaff();
   }
 
@@ -621,7 +633,7 @@ namespace Avogadro
 			vector<OBMol> mols = mol.Separate(1); 
 			int molid;
 
-		   for ( molid = 0; molid < mols.size() ; molid++ )
+		  for ( molid = 0; molid < mols.size() ; molid++ )
 	      {
 		    // mols[molid].AddHydrogens(false, true); // hydrogens must be added before Setup(mol) is called
 		    // after calling AddHydrogen(), atom indices are permutated.
@@ -634,10 +646,27 @@ namespace Avogadro
 			   }
 
 			   if(!pFF->GetAtomTypes(mols[molid] ))
-              {
+               {
 	               dits << tr(" could not find atom types of the fragment of") << molid << ".\n";
-	               return debugInfo;
-               }
+	               return debugInfo;               
+			   }
+
+			   // Set Residue Names
+		       QList<Residue*> residues = m_molecule->residues();
+
+			   foreach (Residue *res, residues) 
+		       {
+		          foreach( unsigned long uid, res->atoms()) // uid is unique id of atom.  
+				  {
+				      if( mols[molid].GetAtomById(uid) != NULL ) // Argument of OBMol::GetAtomById(arg) is also unique id.
+				      {
+				         OBResidue *tempRes = mols[molid].GetAtomById(uid)->GetResidue();
+			             tempRes->SetName( res->name().toStdString() );
+			             mols[molid].GetAtomById(uid)->SetResidue(tempRes);
+				       }
+			       }
+		        }
+
             }
 
 			ts << "PSF\n\n";
@@ -647,11 +676,13 @@ namespace Avogadro
 			ts << tr("      by using General AMBER Force Fields (GAFF).\n\n");
 
 			// ts << qSetFieldWidth(7) << left << mol.NumAtoms() << "\n"<< qSetFieldWidth(0);
-			ts << qSetFieldWidth(5) << right << mol.NumAtoms() << " !NATOMS" << qSetFieldWidth(0) << endl;;
+			ts << qSetFieldWidth(5) << right << mol.NumAtoms() << " !NATOMS" << qSetFieldWidth(0) << endl;
+
 
    	      int acum_natom = 0;
 	      int acum_nres = 0;
 
+		  // Somehow OBAtom::GetResidue()::GetName() fails...
            for ( molid = 0; molid < mols.size() ; molid++ )
 	      {
 		      FOR_ATOMS_OF_MOL( atom, mols[molid] )

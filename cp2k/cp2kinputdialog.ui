@@ -45,6 +45,9 @@
     <attribute name="title">
      <string>Basics</string>
     </attribute>
+    <attribute name="toolTip">
+     <string>Basic Settings</string>
+    </attribute>
     <widget class="QLineEdit" name="projectNameLine">
      <property name="geometry">
       <rect>
@@ -175,6 +178,32 @@
        <string>QM</string>
       </property>
      </widget>
+     <widget class="QRadioButton" name="qmmmRadioButton">
+      <property name="geometry">
+       <rect>
+        <x>220</x>
+        <y>20</y>
+        <width>86</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>QMMM</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QCheckBox" name="showAtomUidCheck">
+     <property name="geometry">
+      <rect>
+       <x>280</x>
+       <y>50</y>
+       <width>201</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Show Atom Index as Custom Label</string>
+     </property>
     </widget>
    </widget>
    <widget class="QWidget" name="mmTab">
@@ -183,6 +212,9 @@
     </property>
     <attribute name="title">
      <string>MM</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Classical Molecular Mechanics Calculation Settings</string>
     </attribute>
     <widget class="QComboBox" name="ewaldTypeCombo">
      <property name="geometry">
@@ -266,6 +298,9 @@
     </property>
     <attribute name="title">
      <string>QM</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Quantum Mechanics Calculation Settings</string>
     </attribute>
     <widget class="QComboBox" name="qmMethodCombo">
      <property name="geometry">
@@ -360,6 +395,9 @@
    <widget class="QWidget" name="dftTab">
     <attribute name="title">
      <string>DFT</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Density Functional Calculation Settings</string>
     </attribute>
     <widget class="QLabel" name="basisSetLabel">
      <property name="geometry">
@@ -516,9 +554,31 @@
      </property>
     </widget>
    </widget>
-   <widget class="QWidget" name="dftbSeTab">
+   <widget class="QWidget" name="dftbTab">
+    <property name="toolTip">
+     <string>Density Functional Tight Binding Electronic Calculation Settings</string>
+    </property>
     <attribute name="title">
-     <string>DFTB/SE</string>
+     <string>DFTB</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Density Functional Tight Binding Method Calculation Settings</string>
+    </attribute>
+   </widget>
+   <widget class="QWidget" name="seTab">
+    <attribute name="title">
+     <string>SE</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Semiemperical Method Calculation Settings</string>
+    </attribute>
+   </widget>
+   <widget class="QWidget" name="qmmmTab">
+    <attribute name="title">
+     <string>QMMM</string>
+    </attribute>
+    <attribute name="toolTip">
+     <string>Quntum Mechanics/Molecular Mechanics Calculation Settings</string>
     </attribute>
    </widget>
   </widget>

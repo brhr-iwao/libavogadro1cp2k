@@ -24,6 +24,11 @@
 #include <avogadro/molecule.h>
 #include <avogadro/atom.h>
 
+// For use PrimitiveList  GLWidget::selectedPrimitives ()  (Atom Selection)
+#include <avogadro/primitive.h>
+#include <avogadro/primitivelist.h>
+#include <avogadro/glwidget.h>
+
 #include <openbabel/mol.h>
 
 #include <QString>
@@ -52,8 +57,13 @@ namespace Avogadro
 	  connect(ui.projectNameLine, SIGNAL(editingFinished()),this, SLOT(setProjectName()) );
 	  connect(ui.runTypeCombo, SIGNAL(currentIndexChanged(int)),this, SLOT(setRunType(int)));
 
+	  // connect(ui.showAtomUidCheck,SIGNAL(stateChanged(m_viewAtomUid)), this, SLOT(setAtomLabelUid()) );
+	  connect(ui.showAtomUidCheck,SIGNAL(pressed()), this, SLOT(setAtomLabelUid()) );
+	  // connect(ui.showAtomUidCheck,SIGNAL(stateChanged(Qt::CheckState)), this, SLOT(setAtomLabelUid()) );
+
 	  connect(ui.mmRadioButton, SIGNAL(clicked()), this, SLOT(mmRadioChecked()) );
 	  connect(ui.qmRadioButton, SIGNAL(clicked()), this, SLOT(qmRadioChecked()) );
+	  connect(ui.qmmmRadioButton, SIGNAL(clicked()), this, SLOT(qmmmRadioChecked()) );
 
 	  // MM tab
 	  connect(ui.emaxSplineDoubleSpin, SIGNAL(valueChanged(double)), this, SLOT(setEmaxSpline(double)));
@@ -70,13 +80,18 @@ namespace Avogadro
 	  connect(ui.nMGridSpin, SIGNAL(valueChanged(int)), this, SLOT(setNMultiGrid(int)));
 	  connect(ui.cutOffSpin, SIGNAL(valueChanged(int)), this, SLOT(setCutOff(int)));
 
+	  // Enables to select atoms while QM/MM tab is opened ?
+	  // GLWidget *widget = GLWidget::current();
+	  // QMouseEvent* mouseEvent;
+	  // connect(widget, SIGNAL(GLWidget::activated( widget )), this, SLOT(updatePreviewText()) );
+	  // connect(widget, SIGNAL(GLWidget::mousePress( mouseEvent )), this, SLOT(updatePreviewText()) );
+
 	  // Initial settings
 	  // Basic tab
 
 	  // MM tab
 	  ui.emaxSplineDoubleSpin->setRange( 0.0, 1000.0 );
 	  ui.emaxSplineDoubleSpin->setSingleStep( 0.1 );
-
 
 	  // QM tab
 	  ui.chargeSpin->setRange(-10, 10);
@@ -101,7 +116,7 @@ namespace Avogadro
 
   Cp2kInputDialog::~Cp2kInputDialog()
   {
-	  // the following codes don't work.
+	  // the following codes appeared not to work...
 	  QSettings settings;
       writeSettings(settings);
 
@@ -118,6 +133,8 @@ namespace Avogadro
     connect(m_molecule, SIGNAL(atomRemoved(Atom *)), this, SLOT(updatePreviewText()) );
     connect(m_molecule, SIGNAL(atomAdded(Atom *)), this, SLOT(updatePreviewText()) );
     connect(m_molecule, SIGNAL(atomUpdated(Atom *)), this, SLOT(updatePreviewText()) );
+
+	// qDebug() << "setMolecule() was called.\n";
 	
     updatePreviewText();
 
@@ -134,8 +151,10 @@ namespace Avogadro
     // Basic tab
 	 settings.setValue("CP2K/ProjectName", ui.projectNameLine->displayText() );
      settings.setValue("CP2K/RunType", ui.runTypeCombo->currentIndex());
-	 settings.setValue("CP2K/mmRadio", m_mmRadioChecked );
-	 settings.setValue("CP2K/qmRadio", m_qmRadioChecked );
+	 settings.setValue("CP2K/ViewAtomUid", ui.showAtomUidCheck->isChecked() );
+	 settings.setValue("CP2K/MMRadio", m_mmRadioChecked );
+	 settings.setValue("CP2K/QMRadio", m_qmRadioChecked );
+	 settings.setValue("CP2K/QMMMRadio", m_qmmmRadioChecked );
 
 	 // MM tab
      settings.setValue("CP2K/EmaxSpline", ui.emaxSplineDoubleSpin->value() );
@@ -168,11 +187,34 @@ namespace Avogadro
 	 ui.runTypeCombo->setCurrentIndex(settings.value("CP2K/RunType", 0).toInt()); 
 	 setRunType( settings.value( "CP2K/RunType", 0).toInt() );
 
-	 ui.mmRadioButton->setChecked( settings.value("CP2K/mmRadio", true).toBool() );
-	 ui.qmRadioButton->setChecked( settings.value("CP2K/qmRadio", false).toBool() );
+	 ui.showAtomUidCheck->setChecked( settings.value ("CP2K/ViewAtomUid", false).toBool() );
+     // m_viewAtomUid = ui.showAtomUidCheck->checkState();
+	 if( settings.value ("CP2K/ViewAtomUid", false).toBool()  == false ) m_viewAtomUid = false;
+	 else m_viewAtomUid = true;
+	 // setAtomLabelUid();
 
-	 if( settings.value("CP2K/mmRadio", true).toBool() ) mmRadioChecked();
-	 else qmRadioChecked();
+	  if( m_viewAtomUid )
+	  {
+	    if(m_molecule)
+		{
+			QString id("");
+		    QList<Atom *> atoms = m_molecule->atoms();
+		  // set an atom's OBAtom::GetId() + 1 to the custom label
+	       foreach (Atom *atom, atoms) 
+	       {
+		      id.setNum(atom->OBAtom().GetId() + 1); 
+		      atom->setCustomLabel( id );
+	        }
+		}
+	  }
+
+	 ui.mmRadioButton->setChecked( settings.value("CP2K/MMRadio", true).toBool() );
+	 ui.qmRadioButton->setChecked( settings.value("CP2K/QMRadio", false).toBool() );
+	 ui.qmmmRadioButton->setChecked( settings.value("CP2K/QMMMRadio", false).toBool() );
+
+	 if( settings.value("CP2K/MMRadio", true).toBool() ) mmRadioChecked();
+	 else if( settings.value("CP2K/QMRadio", true).toBool() ) qmRadioChecked();
+	 else qmmmRadioChecked();
 
 	 // MM tab
 	 ui.emaxSplineDoubleSpin->setValue(settings.value("CP2K/EmaxSpline",0.5 ).toDouble() );
@@ -232,10 +274,15 @@ namespace Avogadro
 
 	  mol << "&FORCE_EVAL\n";
 
-	  // MM
-	    if( m_mmRadioChecked ) 
+	  // MM or QMMM
+	    if( m_mmRadioChecked || m_qmmmRadioChecked ) 
 		{
-			mol << " METHOD FIST\n";
+			if(m_mmRadioChecked)
+				mol << " METHOD FIST\n";
+			else if(m_qmmmRadioChecked)
+				mol << " METHOD QMMM\n";
+
+			// mol << " METHOD FIST\n";
 		    mol << " &MM\n";
 
 				mol << "  &FORCEFIELD\n";
@@ -261,10 +308,17 @@ namespace Avogadro
 
 			mol << " &END MM\n";
 		}
-		// MM ends.
+		// MM or QMMM ends.
 
-		else if( m_qmRadioChecked ) // QM
+		// QM or QMMM
+		if( m_qmRadioChecked || m_qmmmRadioChecked ) 
 		{
+			mol << endl;
+
+			if(m_qmRadioChecked)
+				mol << " METHOD QS\n";
+
+			// else if(m_qmmmRadioChecked) then use METHOD QMMM as the previous shown.
 
 			// DFT
 			if( m_qmMethod == "DFT" )
@@ -273,7 +327,7 @@ namespace Avogadro
 			   mol << tr("# which may have been in cp2k-2.x.x/data or cp2k-2.x.x/tests/QS directory,\n");
 			   mol << tr("# to the CP2K executable directory if you use these default files.\n");
 
-			   mol << " METHOD QS\n";
+			   // mol << " METHOD QS\n";
 			   mol << " &DFT\n";
 			   mol << "   CHARGE " << m_charge << "\n";
 			   mol << "   MULTIPLICITY " << m_multiplicity << "\n";
@@ -374,21 +428,61 @@ namespace Avogadro
 
                mol << "  &SCF\n";
                mol << "    SCF_GUESS ATOMIC\n";
-               mol << "&END SCF\n";
+               mol << "  &END SCF\n";
 
 			   mol << " &END DFT\n";
 			}
 
 		}
+		// QM or QMMM ends.
+
+		// QMMM
+		if( m_qmmmRadioChecked ) 
+		{
+			mol << endl;
+			mol << "# QMMM RaioButton has been checked. \n";
+			mol << "# Under construction.\n";
+			mol << "# Element names and indices of selected atoms are (if exsist)...\n";
+
+            // Find selected atoms
+			GLWidget *widget = GLWidget::current();// a pointer to the current GLWidget
+
+		   if( widget->selectedPrimitives().size() )
+		   {
+		     	foreach(Primitive *p, widget->selectedPrimitives())
+               {
+                   if (p->type() == Primitive::AtomType)
+                   {
+                        Atom *a = static_cast<Atom *>(p);
+
+					    // mol << a->OBAtom().GetIdx() << endl; // OBAtom::GetIdx() appear not to work...
+						mol << "#  " << etab.GetSymbol(a->atomicNumber()) << "  "
+						     << a->OBAtom().GetId() + 1 << endl;
+				   }
+  
+               } 
+		    }
+
+		   mol << endl;
+		   mol << " &QMMM\n";
+
+		   mol << "  &CELL\n";
+		   mol << "  &END CELL\n";
+
+		   mol << " &END QMMM\n\n";
+
+       }
+
+       // QMMM ends
 
 		mol << " &SUBSYS\n";
 
 		 // Define coord in input only for QM (Specify coord file for MM)
-		if( m_qmRadioChecked && (m_molecule != NULL))
+		if( (m_molecule != NULL) && m_qmRadioChecked )
 		{
-			  QList<Atom *> atoms = m_molecule->atoms();
-
 			  mol << "  &COORD\n";
+
+			  QList<Atom *> atoms = m_molecule->atoms();
 
 			  foreach (Atom *atom, atoms) 
 			  {
@@ -404,7 +498,7 @@ namespace Avogadro
 		 }
 
 		// Specify coord file for MM
-		else if( m_mmRadioChecked )
+		else if( m_mmRadioChecked || m_qmmmRadioChecked )
 		{
 			mol << "   &TOPOLOGY\n";
 
@@ -428,10 +522,10 @@ namespace Avogadro
 		}
 
 
-		// Atom kind for DFT
+		// Atom kind for QM-DFT
 		 if( m_molecule != NULL && (&atomKind != NULL) && (m_qmRadioChecked) && (m_qmMethod == "DFT") )
 		 {
-			 setAtomKind();
+			 setAtomKindMol();
 
 			 int i;
 		     for( i = 0 ; i < atomKind.size() ; i++ )
@@ -446,7 +540,17 @@ namespace Avogadro
 			     mol << "   &END KIND\n\n";
 		      }
 		 }
-		 // Atom kind for DFT ends.
+		 // Atom kind for QM-DFT ends.
+
+
+		 // Atom kind for QMMM-DFT
+		 if(  m_molecule != NULL && m_qmmmRadioChecked && (m_qmMethod == "DFT") )
+		 {
+			 mol << "#   &KIND X\n";
+			 mol << "#    Under Construction...\n";
+			 mol << "#   &END KIND \n";
+		 }
+		 // Atom kind for QMMM-DFT ends.
 
 		 mol << "  &CELL\n";
   		 if(m_molecule != NULL)
@@ -505,6 +609,7 @@ namespace Avogadro
 
 	  ui.mmRadioButton->setChecked(true);
 	  ui.qmRadioButton->setChecked(false);
+	  ui.qmmmRadioButton->setChecked(false);
 	  mmRadioChecked();
 
 	  // MM tab
@@ -627,18 +732,49 @@ namespace Avogadro
 	  {
 	    case 0:
 			m_qmMethod = "DFT";
+
+		    ui.mmTab->setEnabled(false);
+	        ui.qmTab->setEnabled(true);
+	        ui.dftTab->setEnabled(true);
+	        ui.dftbTab->setEnabled(false);
+	        ui.seTab->setEnabled(false);
+	        ui.qmmmTab->setEnabled(false);
+
 			break;
 	    case 1:
 			m_qmMethod = "DFTB-SCC";
+
+			ui.mmTab->setEnabled(false);
+	        ui.qmTab->setEnabled(true);
+	        ui.dftTab->setEnabled(false);
+	        ui.dftbTab->setEnabled(true);
+	        ui.seTab->setEnabled(false);
+	        ui.qmmmTab->setEnabled(false);
+
 			break;
 		case 2:
 			m_qmMethod = "DFTB-NONSCC";
+
+			ui.mmTab->setEnabled(false);
+	        ui.qmTab->setEnabled(true);
+	        ui.dftTab->setEnabled(false);
+	        ui.dftbTab->setEnabled(true);
+	        ui.seTab->setEnabled(false);
+	        ui.qmmmTab->setEnabled(false);
+
 			break;
 		case 3:
 			m_qmMethod = "SE-PM6";
+
+			ui.mmTab->setEnabled(false);
+	        ui.qmTab->setEnabled(true);
+	        ui.dftTab->setEnabled(false);
+	        ui.dftbTab->setEnabled(false);
+	        ui.seTab->setEnabled(true);
+	        ui.qmmmTab->setEnabled(false);
+
 			break;
 		default:
-			m_qmMethod = "DFT";
 			break;
 
 	  }
@@ -702,8 +838,8 @@ namespace Avogadro
   }
   
 
-  // Extracts atom kinds
-  void Cp2kInputDialog::setAtomKind()
+  // Extracts atom kinds from m_molecule.
+  void Cp2kInputDialog::setAtomKindMol()
   {
 	  atomKind.clear();
 
@@ -776,6 +912,7 @@ namespace Avogadro
   {
 	  m_mmRadioChecked = true;
 	  m_qmRadioChecked = false;
+	  m_qmmmRadioChecked = false;
 
 	  /*
 	  ui.qmMethodLabel->hide();
@@ -785,6 +922,9 @@ namespace Avogadro
 	  ui.mmTab->setEnabled(true);
 	  ui.qmTab->setEnabled(false);
 	  ui.dftTab->setEnabled(false);
+	  ui.dftbTab->setEnabled(false);
+	  ui.seTab->setEnabled(false);
+	  ui.qmmmTab->setEnabled(false);
 
 	  updatePreviewText();
   }
@@ -793,18 +933,90 @@ namespace Avogadro
   {
 	  m_mmRadioChecked = false;
 	  m_qmRadioChecked = true;
+	  m_qmmmRadioChecked = false;
 
 	  /*
 	  ui.qmMethodLabel->show();
 	  ui.qmMethodCombo->show();
 	  */
 
-	  ui.mmTab->setEnabled(false);
-	  ui.qmTab->setEnabled(true);
-	  ui.dftTab->setEnabled(true);
+	  if(m_qmMethod == "DFT")
+	  {
+	    ui.qmTab->setEnabled(true);
+	    ui.dftTab->setEnabled(true);
+	    ui.dftbTab->setEnabled(false);
+	    ui.seTab->setEnabled(false);
+	  }
+
+	  else if( m_qmMethod == "DFTB-SCC" || m_qmMethod == "DFTB-NONSCC" )
+	  {
+		ui.qmTab->setEnabled(true);
+	    ui.dftTab->setEnabled(false);
+	    ui.dftbTab->setEnabled(true);
+	    ui.seTab->setEnabled(false);
+	  }
+
+	  else if(m_qmMethod == "SE-PM6")
+	  {
+		ui.qmTab->setEnabled(true);
+	    ui.dftTab->setEnabled(false);
+	    ui.dftbTab->setEnabled(false);
+	    ui.seTab->setEnabled(true);
+	  }
 
 	  updatePreviewText();
   }
+
+  void Cp2kInputDialog::qmmmRadioChecked()
+  {
+	  m_mmRadioChecked = false;
+	  m_qmRadioChecked = false;
+	  m_qmmmRadioChecked = true;
+
+	  /*
+	  ui.qmMethodLabel->show();
+	  ui.qmMethodCombo->show();
+	  */
+
+	  ui.mmTab->setEnabled(true);
+	  ui.qmTab->setEnabled(true);
+	  ui.dftTab->setEnabled(true);
+	  ui.dftbTab->setEnabled(true);
+	  ui.seTab->setEnabled(true);
+	  ui.qmmmTab->setEnabled(true);
+
+	  updatePreviewText();
+  }
+
+  void Cp2kInputDialog::setAtomLabelUid()
+  {
+	  if( m_viewAtomUid ) m_viewAtomUid = false;
+	  else m_viewAtomUid = true;
+
+	  if( m_molecule == NULL ) return;
+
+	  QString id("");
+	  QList<Atom *> atoms = m_molecule->atoms();
+
+	  // if( !ui.showAtomUidCheck->isChecked() )
+	  // if( ui.showAtomUidCheck->isChecked() )
+	  if( m_viewAtomUid )
+	  {
+		  // set an atom's OBAtom::GetId() + 1 to the custom label
+	     foreach (Atom *atom, atoms) 
+	    {
+		    id.setNum(atom->OBAtom().GetId() + 1); 
+		    atom->setCustomLabel( id );
+
+	     }
+	  }
+
+	  else 	 foreach (Atom *atom, atoms) 
+		           atom->setCustomLabel("");
+
+  }
+
+
 
   QString Cp2kInputDialog::saveInputFile(QString inputDeck, QString fileType, QString ext)
   {

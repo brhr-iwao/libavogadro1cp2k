@@ -58,8 +58,13 @@ namespace Avogadro
 	QString m_projectName;
 	QString m_runType;
 
+	// int m_viewAtomUid;
+	bool m_viewAtomUid;
+	// Qt::CheckState m_viewAtomUid;
+
     bool m_mmRadioChecked;
 	bool m_qmRadioChecked;
+	bool m_qmmmRadioChecked;
 
 	// MM tab
 	double m_emaxSpline;
@@ -81,7 +86,7 @@ namespace Avogadro
 
 	QString generateInputDeck();
 
-    void setAtomKind();
+    void setAtomKindMol();
 
 	QString potentialName( QString atomType );
 
@@ -91,6 +96,9 @@ namespace Avogadro
 
     void mmRadioChecked();
 	void qmRadioChecked();
+	void qmmmRadioChecked();
+
+	void setAtomLabelUid();
 
   private Q_SLOTS:
     //! Button Slots
