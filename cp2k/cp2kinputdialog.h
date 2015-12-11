@@ -35,6 +35,22 @@
 
 namespace Avogadro
 {
+
+  struct uidcoord // uid (unique ID + 1), element name and Coordinates
+  {
+	  unsigned long uid;
+	  QString el;
+	  double x;
+	  double y;
+	  double z;
+  };
+
+  struct selatom // selected atom
+  {
+	  QString element;
+	  unsigned long uid; // unique id + 1
+  };
+
   class Molecule;
   class Cp2kInputDialog : public QDialog
   {
@@ -52,14 +68,20 @@ namespace Avogadro
 	void setModel(ConstraintsModel *model);
 
   private:
+    // Variables
+	// Common
     Ui::Cp2kInputDialog ui;
+	ConstraintsModel *m_constraints;
+    std::vector<QString> atomKindMol;
+	std::vector<selatom> selAtoms;
+	std::vector<QString> selAtomsKind;
 	
 	// basic tab
 	QString m_projectName;
 	QString m_runType;
 
-	// int m_viewAtomUid;
 	bool m_viewAtomUid;
+    // int m_viewAtomUid;
 	// Qt::CheckState m_viewAtomUid;
 
     bool m_mmRadioChecked;
@@ -72,6 +94,8 @@ namespace Avogadro
 
 	// QM tab
 	QString m_qmMethod;
+	QString m_scfGuess;
+	int m_maxSCF;
 
 	// DFT tab
 	QString m_basisSet;
@@ -80,15 +104,14 @@ namespace Avogadro
 	int m_nMultiGrid;
 	int m_cutOff;
 
-    ConstraintsModel *m_constraints;
-
-	std::vector<QString> atomKind;
-
+   // Functions
+	// Common
 	QString generateInputDeck();
-
     void setAtomKindMol();
-
 	QString potentialName( QString atomType );
+	static bool uidComp( const uidcoord& left, const uidcoord& right );
+	static bool qstringEqual(const QString& left, const QString& right);
+	void setSelAtoms();
 
 
   public Q_SLOTS:
@@ -98,6 +121,7 @@ namespace Avogadro
 	void qmRadioChecked();
 	void qmmmRadioChecked();
 
+	//void setAtomLabelUid(Qt::CheckState);
 	void setAtomLabelUid();
 
   private Q_SLOTS:
@@ -118,6 +142,8 @@ namespace Avogadro
 	void setQmMethod(int);
 	void setCharge(int);
 	void setMultiplicity(int);
+	void setMaxSCF(int);
+	void setSCFGuess(int);
 
 	// DFT tab
     void setBasisSet(int);

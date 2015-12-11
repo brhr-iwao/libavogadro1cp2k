@@ -131,6 +131,8 @@ namespace Avogadro
 
 	 bool Updated;
 
+	 int connAtoms( OBAtom* a );
+
    public Q_SLOTS:
      void updatePreviewText();
 

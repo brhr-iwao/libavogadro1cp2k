@@ -391,6 +391,97 @@
       </rect>
      </property>
     </widget>
+    <widget class="QSpinBox" name="maxSCFSpin">
+     <property name="geometry">
+      <rect>
+       <x>220</x>
+       <y>50</y>
+       <width>42</width>
+       <height>22</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="maxSCFLabel">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>50</y>
+       <width>50</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Max SCF:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="scfGuessCombo">
+     <property name="geometry">
+      <rect>
+       <x>310</x>
+       <y>10</y>
+       <width>141</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>ATOMIC</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>RESTART</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>RANDOM</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>CORE</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>DENSITIES</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>HISTORY_RESTART</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MOPAC</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>SPARSE</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>NONE</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QLabel" name="scfGuessLabel">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>10</y>
+       <width>61</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>SCF Guess:</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="dftTab">
     <attribute name="title">
