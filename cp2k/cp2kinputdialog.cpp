@@ -444,7 +444,9 @@ namespace Avogadro
 
 			else if (m_qmMethod == "SE-PM6")
 			{
-			   mol << " METHOD QS\n";
+			   if (m_qmRadioChecked)
+					mol << " METHOD QS\n";
+
 			   mol << " &DFT\n";
 			   mol << "   CHARGE " << m_charge << "\n";
 			   mol << "   MULTIPLICITY " << m_multiplicity << "\n";
@@ -471,6 +473,8 @@ namespace Avogadro
 		{
 		    mol << endl;
 		    mol << " &QMMM\n";
+			// mol << "  ECOUPL NONE\n";
+
 
 			/*
 			mol << endl;
@@ -480,6 +484,25 @@ namespace Avogadro
 			*/
 
 			setSelAtoms();
+
+			setLinkAtoms();
+
+			if (!linkAtoms.empty())
+			{
+				for (int i = 0; i < linkAtoms.size(); i++)
+				{
+					mol << "  &LINK\n";
+					mol << "   ALPHA 1.50\n";
+					mol << "   LINK_TYPE IMOMM\n";
+					mol << "   MM_INDEX " << linkAtoms[i].mmuid << "\n";
+					mol << "   QM_INDEX " << linkAtoms[i].qmuid << "\n";
+					mol << "   QMMM_SCALE_FACTOR 0.0\n";
+					mol << "   RADIUS 0.80\n";
+					mol << "  &END LINK\n";
+				}
+
+				mol << endl;
+			}
 
 			if( !selAtoms.empty() && !selAtomsKind.empty() )
 			{
@@ -496,11 +519,13 @@ namespace Avogadro
 					}
 
 					mol << endl;
+					mol << "  &END QM_KIND\n";
 				}
 			}
 
 
 		   mol << "  &CELL\n";
+		   mol << unitCell();
 		   mol << "  &END CELL\n";
 
 		   mol << " &END QMMM\n\n";
@@ -590,8 +615,7 @@ namespace Avogadro
 		 {
 			 setAtomKindMol();
 
-			 int i;
-		     for( i = 0 ; i < atomKindMol.size() ; i++ )
+		     for( int i = 0 ; i < atomKindMol.size() ; i++ )
 		     {
 		         mol << "   &KIND " << atomKindMol[i] << "\n";
 
@@ -609,39 +633,22 @@ namespace Avogadro
 		 // Atom kind for QMMM-DFT
 		 if(  m_molecule != NULL && m_qmmmRadioChecked && (m_qmMethod == "DFT") )
 		 {
-			 mol << "#   &KIND X\n";
-			 mol << "#    Under Construction...\n";
-			 mol << "#   &END KIND \n";
+			 for (int i = 0; i < selAtomsKind.size(); i++)
+			 {
+				 mol << "   &KIND " << selAtomsKind[i] << "\n";
+
+				 mol << "    BASIS_SET " << m_basisSet << "\n";
+				 mol << "    POTENTIAL "
+					 << potentialName(selAtomsKind[i])
+					 << "\n";
+
+				 mol << "   &END KIND\n\n";
+			 }
 		 }
 		 // Atom kind for QMMM-DFT ends.
 
-		 mol << "  &CELL\n";
-  		 if(m_molecule != NULL)
-		 {
-			  OpenBabel::OBUnitCell* cell;
-			  cell = m_molecule->OBUnitCell();
-
-			  if(cell != NULL) 
-			  {
-				 // lengths of cell vectors
-				  mol << "    " << qSetFieldWidth(31) << left << "ABC" << qSetFieldWidth(0) 
-					 << qSetFieldWidth(15) << left <<  qSetRealNumberPrecision(5) << forcepoint << fixed
-				     <<  cell->GetA() << cell->GetB() << cell->GetC() 
-					 << qSetFieldWidth(0) << "\n";
-
-				 // angles between cell vectors
-				 mol << "    " << qSetFieldWidth(20) << left << "ALPHA_BETA_GAMMA"
-					 << qSetFieldWidth(15) << left << qSetRealNumberPrecision(5) << forcepoint << fixed
-				    <<  cell->GetAlpha() << cell->GetBeta() << cell->GetGamma() 
-					 << qSetFieldWidth(0) << "\n";
-			   }
-
-			  else
-			  {
-				  mol << tr("   ABC 50 50 50 # Provisional Cell Param. Please \"Add Unit Cell\" !\n");
-			  }
-
-		 }
+		mol << "  &CELL\n";
+	    mol << unitCell();
 	   	mol << "  &END CELL\n";
 
 		 mol << " &END SUBSYS\n";
@@ -696,6 +703,144 @@ namespace Avogadro
 	  selAtomsKind.erase( new_end, selAtomsKind.end());
 
   }
+
+  QString Cp2kInputDialog::unitCell()
+  {
+	  QString buff;
+	  QTextStream ts(&buff);
+
+	  if (m_molecule != NULL)
+	  {
+		  OpenBabel::OBUnitCell* cell;
+		  cell = m_molecule->OBUnitCell();
+
+		  if (cell != NULL)
+		  {
+			  // lengths of cell vectors
+			  ts << "    " << qSetFieldWidth(31) << left << "ABC" << qSetFieldWidth(0)
+				  << qSetFieldWidth(15) << left << qSetRealNumberPrecision(5) << forcepoint << fixed
+				  << cell->GetA() << cell->GetB() << cell->GetC()
+				  << qSetFieldWidth(0) << "\n";
+
+			  // angles between cell vectors
+			  ts << "    " << qSetFieldWidth(20) << left << "ALPHA_BETA_GAMMA"
+				  << qSetFieldWidth(15) << left << qSetRealNumberPrecision(5) << forcepoint << fixed
+				  << cell->GetAlpha() << cell->GetBeta() << cell->GetGamma()
+				  << qSetFieldWidth(0) << "\n";
+		  }
+
+		  else
+		  {
+			  ts << tr("   ABC 50 50 50 # Provisional Cell Param. Please \"Add Unit Cell\" !\n");
+		  }
+
+	  }
+
+	  return buff;
+  }
+
+  void Cp2kInputDialog::setLinkAtoms()
+  {
+	  if (m_molecule == NULL) return;
+	  if (selAtoms.empty() ) return;
+
+	  // collect mm uids
+	  std::vector<unsigned long> mmuids;
+
+	  QList<Atom *> atoms = m_molecule->atoms();
+
+	  foreach(Atom *atom, atoms)
+	  {
+		  bool is_mm = true;
+
+		  for (int i = 0; i < selAtoms.size(); i++) // scan qm atoms
+		  {
+			  if (selAtoms[i].uid == atom->OBAtom().GetId() + 1 )
+				  is_mm = false;
+		  }
+
+		  if (is_mm) mmuids.push_back(atom->OBAtom().GetId() + 1);
+
+	  }
+
+	  if (mmuids.empty()) return;
+	  
+	  // qDebug() << "size of mmuid is " << mmuids.size() << endl;
+
+	  linkAtoms.clear();
+
+	  /*
+	  QList<Primitive *> selectedAtoms;
+	  for (int i; i < selAtoms.size(); i++)
+		  selectedAtoms.append(m_molecule->atomById(selAtoms[i].uid - 1));
+
+	  GLWidget *widget = GLWidget::current();// a pointer to the current GLWidget
+	  widget->setSelected(selectedAtoms, false);
+	  */
+
+	  for (int i = 0; i < selAtoms.size(); i++) // scan qm atoms
+	  {
+		  /*
+		  unsigned long qm = selAtoms[i].uid - 1;
+
+		  qDebug() << "qm is " << qm << endl;
+
+		  OBAtom a = m_molecule->atomById(qm)->OBAtom();
+
+		  qDebug() << "uid of a is " << a.GetId() + 1 << endl;
+
+		  FOR_NBORS_OF_ATOM(nbr, (OBAtom*)&a)
+		  {
+		  qDebug() << "uid of nbr is " << (&*nbr)->GetId() + 1 << endl;
+
+		  for (int j = 0; j < mmuids.size(); j++)
+		  {
+		  if( (&*nbr)->GetId() + 1 == mmuids[j])
+		  {
+		  linkatoms templa;
+		  templa.mmuid = mmuids[j];
+		  templa.qmuid = qm + 1;
+
+		  linkAtoms.push_back(templa);
+		  }
+		  }
+		  }
+		  */
+
+
+		  unsigned long qm = selAtoms[i].uid - 1;
+
+		  Atom* a = m_molecule->atomById(qm);
+
+		  /*
+		  qDebug() << qm + 1 << "th or" << a->OBAtom().GetId() + 1 
+			  <<  "th atom's neigbour atoms are " << a->neighbors().size();
+		  */
+
+		  foreach(unsigned long uid, a->neighbors())
+		  {
+			  // qDebug() << "neigbour's uid" << uid << endl;
+
+			  for (int j = 0; j < mmuids.size(); j++)
+			  {
+				  if (uid + 1 == mmuids[j])
+				  {
+					  linkatoms templa;
+					  templa.mmuid = mmuids[j];
+					  templa.qmuid = qm + 1;
+
+					  linkAtoms.push_back(templa);
+				  }
+			  }
+		  }
+
+
+	  }
+
+	 // widget->setSelected(selectedAtoms, true);
+
+  }
+
 
   void Cp2kInputDialog::updatePreviewText()
   {
@@ -846,7 +991,7 @@ namespace Avogadro
 	    case 0:
 			m_qmMethod = "DFT";
 
-		    ui.mmTab->setEnabled(false);
+		    //ui.mmTab->setEnabled(false);
 	        ui.qmTab->setEnabled(true);
 	        ui.dftTab->setEnabled(true);
 	        ui.dftbTab->setEnabled(false);
@@ -857,7 +1002,7 @@ namespace Avogadro
 	    case 1:
 			m_qmMethod = "DFTB-SCC";
 
-			ui.mmTab->setEnabled(false);
+			//ui.mmTab->setEnabled(false);
 	        ui.qmTab->setEnabled(true);
 	        ui.dftTab->setEnabled(false);
 	        ui.dftbTab->setEnabled(true);
@@ -868,7 +1013,7 @@ namespace Avogadro
 		case 2:
 			m_qmMethod = "DFTB-NONSCC";
 
-			ui.mmTab->setEnabled(false);
+			//ui.mmTab->setEnabled(false);
 	        ui.qmTab->setEnabled(true);
 	        ui.dftTab->setEnabled(false);
 	        ui.dftbTab->setEnabled(true);
@@ -879,7 +1024,7 @@ namespace Avogadro
 		case 3:
 			m_qmMethod = "SE-PM6";
 
-			ui.mmTab->setEnabled(false);
+			//ui.mmTab->setEnabled(false);
 	        ui.qmTab->setEnabled(true);
 	        ui.dftTab->setEnabled(false);
 	        ui.dftbTab->setEnabled(false);

@@ -671,6 +671,19 @@
     <attribute name="toolTip">
      <string>Quntum Mechanics/Molecular Mechanics Calculation Settings</string>
     </attribute>
+    <widget class="QLabel" name="qmmmExplanationLabel">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>20</y>
+       <width>251</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Select QM Atoms with Selection Tool (F11)  !</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QTextEdit" name="previewText">

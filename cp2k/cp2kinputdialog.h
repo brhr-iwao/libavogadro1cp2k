@@ -51,6 +51,12 @@ namespace Avogadro
 	  unsigned long uid; // unique id + 1
   };
 
+  struct linkatoms
+  {
+	  unsigned long mmuid; // unique id + 1
+	  unsigned long qmuid;
+  };
+
   class Molecule;
   class Cp2kInputDialog : public QDialog
   {
@@ -75,6 +81,7 @@ namespace Avogadro
     std::vector<QString> atomKindMol;
 	std::vector<selatom> selAtoms;
 	std::vector<QString> selAtomsKind;
+	std::vector<linkatoms> linkAtoms;
 	
 	// basic tab
 	QString m_projectName;
@@ -112,7 +119,8 @@ namespace Avogadro
 	static bool uidComp( const uidcoord& left, const uidcoord& right );
 	static bool qstringEqual(const QString& left, const QString& right);
 	void setSelAtoms();
-
+	QString unitCell();
+	void setLinkAtoms();
 
   public Q_SLOTS:
     void updatePreviewText();
