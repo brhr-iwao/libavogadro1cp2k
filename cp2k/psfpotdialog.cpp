@@ -645,6 +645,23 @@ namespace Avogadro
 			vector<OBMol> mols = mol.Separate(1); 
 			int molid;
 
+			for ( molid = 0; molid < mols.size() ; molid++ )
+			{
+				FOR_ATOMS_OF_MOL( atom, mols[molid] )
+				{
+					char segIdx[ 1024 ];
+					sprintf( segIdx, "%d", molid + 1 );
+					OBPairData *segIdxLabel = new OBPairData;
+                    segIdxLabel->SetAttribute("SegmentIndex");
+                    segIdxLabel->SetValue(segIdx);
+                      // segIdxLabel->SetOrigin(userInput); // set by user, not by Open Babel
+
+                    // (&*atom)->SetData(segIdxLabel);
+					mol.GetAtomById( atom->GetId() )->SetData(segIdxLabel);
+				}
+			}
+
+			/*
 		  for ( molid = 0; molid < mols.size() ; molid++ )
 	      {
 		    // mols[molid].AddHydrogens(false, true); // hydrogens must be added before Setup(mol) is called
@@ -680,6 +697,30 @@ namespace Avogadro
 		        }
 
             }
+			*/
+
+			/*
+		    FOR_ATOMS_OF_MOL( atom, mol)
+			{
+				
+			   // Set Residue Names
+		       QList<Residue*> residues = m_molecule->residues();
+
+			   foreach (Residue *res, residues) 
+		       {
+		          foreach( unsigned long uid, res->atoms()) // uid is unique id of atom.  
+				  {
+				      if( mol.GetAtomById(uid) != NULL ) // Argument of OBMol::GetAtomById(arg) is also unique id.
+				      {
+				         OBResidue *tempRes = mol.GetAtomById(uid)->GetResidue();
+			             tempRes->SetName( res->name().toStdString() );
+			             mol.GetAtomById(uid)->SetResidue(tempRes);
+				       }
+			       }
+		        }
+
+			}
+			*/
 
 			ts << "PSF\n\n";
             ts << "      3 !NTITLE\n";
@@ -695,6 +736,7 @@ namespace Avogadro
 	      //int acum_nres = 0;
 
 		  // Somehow OBAtom::GetResidue()::GetName() fails...
+			/*
            for ( molid = 0; molid < mols.size() ; molid++ )
 	      {
 		      FOR_ATOMS_OF_MOL( atom, mols[molid] )
@@ -726,6 +768,44 @@ namespace Avogadro
 		          //acum_natom += mols[molid].NumAtoms();
 		          //acum_nres += mols[molid].NumResidues();
 	      }
+		  */
+
+			  FOR_ATOMS_OF_MOL( atom, mol )
+		     {
+
+			     // int atomid = atom->GetId() + 1 + acum_natom;
+				 int atomid = atom->GetIdx();
+				 // int atomid = atom->GetId() + 1;
+
+			      OBPairData *type = (OBPairData*) atom->GetData("FFAtomType");
+                  OBPairData *segidx;
+				  if( atom->HasData("SegmentIndex"))
+				      segidx =  (OBPairData*) atom->GetData("SegmentIndex");
+
+				  // ts << qSetFieldWidth(7) << right << atomid << qSetFieldWidth(0)
+				// 	 << " SEG" << left << molid + 1;
+				  if( atom->HasData("SegmentIndex"))
+				  { ts << qSetFieldWidth(7) << right << atomid << qSetFieldWidth(0)
+				 	 << " SEG" << left << segidx->GetValue().c_str();
+				  }
+
+				  else
+				  {
+					  ts << qSetFieldWidth(7) << right << atomid << qSetFieldWidth(0)
+				 	      << " SEG1" ;
+				  }
+
+				  ts << qSetFieldWidth(7) << right 
+					  // << atom->GetResidue()->GetIdx() + 1 + acum_nres;
+					  << atom->GetResidue()->GetIdx() + 1;
+				  ts << qSetFieldWidth(5) << right << atom->GetResidue()->GetName().c_str() 
+					  << qSetFieldWidth(0) << " ";
+				  ts << left << etab.GetSymbol(atom->GetAtomicNum()) << "  ";
+				  ts << left << type->GetValue().c_str() << "    ";
+				  ts << qSetRealNumberPrecision(5) << fixed << right << atom->GetPartialCharge() <<  "  ";
+				  ts << qSetRealNumberPrecision(5) << fixed << right << atom->GetExactMass() << "      0\n";
+
+			  }	   
 
 	      ts << endl;
           ts << qSetFieldWidth(5) << right << mol.NumBonds() << " !NBONDS" << qSetFieldWidth(0) << endl;
@@ -734,6 +814,8 @@ namespace Avogadro
 		 // bond pairs
          int i = 0;
          //acum_natom = 0;
+		 
+		 /*
          for ( molid = 0; molid < mols.size() ; molid++ )
          {
 	          FOR_BONDS_OF_MOL(bond, mols[molid] )
@@ -744,21 +826,17 @@ namespace Avogadro
 				    << bond->GetEndAtom()->GetId() + 1;
 	               i++;
 
-                  /*
-	              ts << "   " 
-				     << bond->GetBeginAtom()->GetId() + 1 + acum_natom 
-				     << "   " 
-				    << bond->GetEndAtom()->GetId() + 1 + acum_natom ;
-	               i++;
-				   */
+	              // ts << "   " 
+				  //   << bond->GetBeginAtom()->GetId() + 1 + acum_natom 
+				  //   << "   " 
+				  //  << bond->GetEndAtom()->GetId() + 1 + acum_natom ;
+	              //  i++;
 
-				 /*
-				 	ts << "      " 
-				     << bond->GetBeginAtom()->GetIdx()
-				     << "      " 
-				    << bond->GetEndAtom()->GetIdx() ;
-	               i++;
-				 */
+				 // ts << "      " 
+				 //    << bond->GetBeginAtom()->GetIdx()
+				 //    << "      " 
+				 //   << bond->GetEndAtom()->GetIdx() ;
+	             //   i++;
 
 	                if( i >= 4 ) // four pairs of atoms per line
 	              {
@@ -770,6 +848,24 @@ namespace Avogadro
 
 		         //acum_natom += mols[molid].NumAtoms();
           }
+		  */
+
+		 	  FOR_BONDS_OF_MOL( bond, mol )
+             {
+				 ts << "   " 
+				     << bond->GetBeginAtom()->GetIdx()
+				     << "   " 
+				    << bond->GetEndAtom()->GetIdx();
+	               i++;
+
+	                if( i >= 4 ) // four pairs of atoms per line
+	              {
+			             ts << endl << "     ";
+	                     i=0;
+	              }
+	              else continue;
+              }
+
           // end of bonds
 
 		  ts << endl << endl;
@@ -785,10 +881,12 @@ namespace Avogadro
           OBAtom *a, *b, *c;
            i = 0;
            //acum_natom = 0;
+		   /*
            for ( molid = 0; molid < mols.size() ; molid++ )
            {
 	            FOR_ANGLES_OF_MOL( angle, mols[molid] )
 		        {
+					
 		             a = mols[molid].GetAtom((*angle)[1] + 1);
 	                 b = mols[molid].GetAtom((*angle)[0] + 1); // vertex
 	                 c = mols[molid].GetAtom((*angle)[2] + 1);
@@ -801,25 +899,21 @@ namespace Avogadro
 				       << c->GetId() + 1;
                      i++;
 
-					 /*
-	                ts << "   " 
-			        	<< a->GetId() + 1 + acum_natom
-			    	    << "   " 
-				        << b->GetId() + 1 + acum_natom
-				         << "   " 
-				       << c->GetId() + 1 + acum_natom;
-                     i++;
-					 */
+	                // ts << "   " 
+			        //	<< a->GetId() + 1 + acum_natom
+			    	//    << "   " 
+				    //    << b->GetId() + 1 + acum_natom
+				    //     << "   " 
+				    //   << c->GetId() + 1 + acum_natom;
+                    // i++;
 
-					 /*
-					 ts << "      " 
-			        	<< a->GetIdx()
-			    	    << "      " 
-				        << b->GetIdx()
-				         << "      " 
-				       << c->GetIdx();
-					 i++;
-					 */
+					 // ts << "      " 
+			         //    << a->GetIdx()
+			    	 //      << "      " 
+				     //      << b->GetIdx()
+				     //      << "      " 
+				     //      << c->GetIdx();
+					 //  i++;
 
 	                if( i >= 3 ) // three triples of atoms per line
 	                { 
@@ -832,7 +926,31 @@ namespace Avogadro
 
 	           //acum_natom += mols[molid].NumAtoms();
               }
+			  */
 
+		   	    FOR_ANGLES_OF_MOL( angle, mol )
+		        {
+					
+		             a = mol.GetAtom((*angle)[1] + 1);
+	                 b = mol.GetAtom((*angle)[0] + 1); // vertex
+	                 c = mol.GetAtom((*angle)[2] + 1);
+
+	                ts << "   " 
+			        	<< a->GetIdx()
+			    	    << "   " 
+				        << b->GetIdx()
+				         << "   " 
+				       << c->GetIdx();
+                     i++;
+
+	                if( i >= 3 ) // three triples of atoms per line
+	                { 
+		                ts << endl << "     ";
+		                 i = 0;
+	                }
+	                else continue;
+
+		         }
           ts << endl;
          // end of angles
 
@@ -848,6 +966,7 @@ namespace Avogadro
         OBAtom* d; // OBAtom *a, *b and *c are already decleard above.
         i = 0;
         //acum_natom = 0;
+		/*
         for ( molid = 0; molid < mols.size() ; molid++ )
         {
 	         FOR_TORSIONS_OF_MOL(torsion, mols[molid] )
@@ -867,29 +986,25 @@ namespace Avogadro
 				     d->GetId() + 1;
 	           i++;
 
-			   /*
-	           ts << "   " 
-				  << a->GetId() + 1 + acum_natom
-				  << "   " 
-				  << b->GetId() + 1 + acum_natom
-				  << "   "
-				  << c->GetId() + 1 + acum_natom 
-				  << "   " <<
-				     d->GetId() + 1 + acum_natom ;
-	           i++;
-			   */
+	           // ts << "   " 
+			   //	  << a->GetId() + 1 + acum_natom
+			  //      << "   " 
+			//	  << b->GetId() + 1 + acum_natom
+			//	  << "   "
+			//	  << c->GetId() + 1 + acum_natom 
+			//	  << "   " <<
+			//	     d->GetId() + 1 + acum_natom ;
+	        //   i++;
 
-			   /*
-	           ts << "      " 
-				  << a->GetIdx()
-				  << "      " 
-				  << b->GetIdx()
-				  << "      "
-				  << c->GetIdx()
-				  << "      " <<
-				     d->GetIdx();
-	           i++;
-			   */
+	           // ts << "      " 
+				//  << a->GetIdx()
+				//  << "      " 
+				//  << b->GetIdx()
+				//  << "      "
+				//  << c->GetIdx()
+				//  << "      " <<
+				//     d->GetIdx();
+	           //  i++;
 
 	          if( i >= 2 ) // two quaruples of atoms per line
 	          { 
@@ -902,6 +1017,33 @@ namespace Avogadro
 
            //acum_natom += mols[molid].NumAtoms();
          }
+		 */
+	        FOR_TORSIONS_OF_MOL(torsion, mol )
+           {
+	           a = mol.GetAtom((*torsion)[0] + 1);
+	           b = mol.GetAtom((*torsion)[1] + 1);
+	           c = mol.GetAtom((*torsion)[2] + 1);
+	           d = mol.GetAtom((*torsion)[3] + 1);
+
+			  ts << "   " 
+				  << a->GetIdx()
+				  << "   " 
+				  << b->GetIdx()
+				  << "   "
+				  << c->GetIdx()
+				  << "   " <<
+				     d->GetIdx();
+	           i++;
+
+	          if( i >= 2 ) // two quaruples of atoms per line
+	          { 
+		        ts << endl
+					<< "     ";
+		        i = 0;
+	           }
+	        else continue;
+           }
+
          // end of dihedrals
 
           ts << endl
@@ -920,6 +1062,7 @@ namespace Avogadro
         // out-of-plane (improper) dihedral quareples
          i = 0;
         //acum_natom = 0;
+		/*
        for ( molid = 0; molid < mols.size() ; molid++ )
        {
 	       FOR_ATOMS_OF_MOL ( atom, mols[molid] ) 
@@ -949,6 +1092,27 @@ namespace Avogadro
 
 		//acum_natom += mols[molid].NumAtoms();
        }
+	   */
+
+		 	FOR_ATOMS_OF_MOL ( atom, mol ) 
+           {
+			   if(  connAtoms(&*atom) == 3 )
+	          {
+				  ts << "   " << atom->GetIdx();
+
+                   FOR_NBORS_OF_ATOM( nbr, &*atom )
+				   { ts << "   " << nbr->GetIdx(); }
+		          i++;
+
+		          if( i >= 2 ) // two quaruples of atoms per line
+		    	  {
+		             ts << endl << "     ";
+				     i = 0;
+		          }
+
+			  }
+	           else continue;
+		    }
        // end of out-of-plane
 
         ts << endl; // an empty line
@@ -1496,7 +1660,7 @@ namespace Avogadro
 
 		  ts << tr("*>>>>>>>   General AMBER FF (GAFF) written in CHARMM FF style  <<<<<<<\n");
 		  ts << tr("*>>>>>>>   for ") << molBaseName;
-		  ts << tr(", generated by Avogadro                          <<<<<<<\n\n");
+		  ts << tr("which generated by Avogadro                          <<<<<<<\n\n");
 		  ts << "BONDS\n";
 		  ts << "!\n";
           ts << "!V(bond) = Kb(b - b0)**2\n";

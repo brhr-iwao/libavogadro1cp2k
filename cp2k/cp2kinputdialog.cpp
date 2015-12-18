@@ -58,7 +58,9 @@ namespace Avogadro
 	  connect(ui.runTypeCombo, SIGNAL(currentIndexChanged(int)),this, SLOT(setRunType(int)));
 
 	  // connect(ui.showAtomUidCheck,SIGNAL(stateChanged(m_viewAtomUid)), this, SLOT(setAtomLabelUid()) );
-	  connect(ui.showAtomUidCheck,SIGNAL(pressed()), this, SLOT(setAtomLabelUid()) );
+
+	  // connect(ui.showAtomUidCheck,SIGNAL(pressed()), this, SLOT(setAtomLabelUid()) ); // Only this connect() work
+
 	  // connect(ui.showAtomUidCheck,SIGNAL(stateChanged(Qt::CheckState)), this, SLOT(setAtomLabelUid()) );
 	  // connect(ui.showAtomUidCheck, SIGNAL(stateChanged(Qt::CheckState)), this, SLOT(setAtomLabelUid(Qt::CheckState)));
 
@@ -169,7 +171,7 @@ namespace Avogadro
     // Basic tab
 	 settings.setValue("CP2K/ProjectName", ui.projectNameLine->displayText() );
      settings.setValue("CP2K/RunType", ui.runTypeCombo->currentIndex());
-	 settings.setValue("CP2K/ViewAtomUid", ui.showAtomUidCheck->isChecked() );
+	 // settings.setValue("CP2K/ViewAtomUid", ui.showAtomUidCheck->isChecked() ); // Only this work.
 	 // settings.setValue("CP2K/ViewAtomUid", ui.showAtomUidCheck->checkState());
 	 settings.setValue("CP2K/MMRadio", m_mmRadioChecked );
 	 settings.setValue("CP2K/QMRadio", m_qmRadioChecked );
@@ -209,13 +211,20 @@ namespace Avogadro
 	 setRunType( settings.value( "CP2K/RunType", 0).toInt() );
 
 	 // ui.showAtomUidCheck->setChecked( settings.value ("CP2K/ViewAtomUid", 0).toInt() );
-	 ui.showAtomUidCheck->setChecked( settings.value ("CP2K/ViewAtomUid", false).toBool() );
+
+	 // ui.showAtomUidCheck->setChecked( settings.value ("CP2K/ViewAtomUid", false).toBool() );// Only this works.
+
      // m_viewAtomUid = ui.showAtomUidCheck->checkState();
+
+	 // only the 2 followings work.
+	 /*
 	 if( settings.value ("CP2K/ViewAtomUid", false).toBool()  == false ) m_viewAtomUid = false;
 	  else m_viewAtomUid = true;
+	 */
+
 	 // setAtomLabelUid();
 
-	 
+	 /*
 	  if( m_viewAtomUid )
 	  {
 	    if(m_molecule)
@@ -230,6 +239,7 @@ namespace Avogadro
 	        }
 		}
 	  }
+	  */
 	 
 
 	 ui.mmRadioButton->setChecked( settings.value("CP2K/MMRadio", true).toBool() );
@@ -494,14 +504,15 @@ namespace Avogadro
 					mol << "  &LINK\n";
 					mol << "   ALPHA 1.50\n";
 					mol << "   LINK_TYPE IMOMM\n";
-					mol << "   MM_INDEX " << linkAtoms[i].mmuid << "\n";
-					mol << "   QM_INDEX " << linkAtoms[i].qmuid << "\n";
+					// mol << "   MM_INDEX " << linkAtoms[i].mmuid << "\n";
+					// mol << "   QM_INDEX " << linkAtoms[i].qmuid << "\n";
+		            mol << "   MM_INDEX " << linkAtoms[i].mmidx << "\n";
+					mol << "   QM_INDEX " << linkAtoms[i].qmidx << "\n";
 					mol << "   QMMM_SCALE_FACTOR 0.0\n";
 					mol << "   RADIUS 0.80\n";
 					mol << "  &END LINK\n";
 				}
 
-				mol << endl;
 			}
 
 			if( !selAtoms.empty() && !selAtomsKind.empty() )
@@ -514,11 +525,13 @@ namespace Avogadro
 					{
 						if (selAtomsKind[i] == selAtoms[j].element)
 						{
-							mol << " " << selAtoms[j].uid;
+							// mol << " " << selAtoms[j].uid;
+							mol << " " << selAtoms[j].idx;
 						}
 					}
 
 					mol << endl;
+
 					mol << "  &END QM_KIND\n";
 				}
 			}
@@ -541,7 +554,6 @@ namespace Avogadro
 		{
 			  mol << "  &COORD\n";
 
-			  /*
 			  QList<Atom *> atoms = m_molecule->atoms();
 
 			  foreach (Atom *atom, atoms) 
@@ -552,8 +564,11 @@ namespace Avogadro
 			      << atom->pos()->x() << atom->pos()->y() << atom->pos()->z()
 				  << qSetFieldWidth(0) << "\n";
 			  }
-			  */
 
+
+			  // sort "atom kind x y z coorinates" as atom uid ascending
+			  // and put it the COORD section.
+			  /*
 			  QList<Atom *> atoms = m_molecule->atoms();
 			  uidcoord tempuc;
 			  std::vector<uidcoord> moluc;
@@ -561,6 +576,7 @@ namespace Avogadro
 			  foreach (Atom *atom, atoms) 
 			  {
 				  tempuc.uid = atom->OBAtom().GetId() + 1;
+				  tempuc.idx = atom->OBAtom().GetIdx();
 				  tempuc.el = QString(OpenBabel::etab.GetSymbol(atom->atomicNumber()));
 				  tempuc.x = atom->OBAtom().GetX();
 				  tempuc.y = atom->OBAtom().GetY();
@@ -579,7 +595,7 @@ namespace Avogadro
 			      << moluc[i].x << moluc[i].y << moluc[i].z
 				  << qSetFieldWidth(0) << "\n";
 			  }
-
+              */
 
 			  mol << "  &END COORD\n\n";
 
@@ -631,7 +647,7 @@ namespace Avogadro
 
 
 		 // Atom kind for QMMM-DFT
-		 if(  m_molecule != NULL && m_qmmmRadioChecked && (m_qmMethod == "DFT") )
+		 if(  m_molecule != NULL && m_qmmmRadioChecked && (m_qmMethod == "DFT") && !selAtomsKind.empty() )
 		 {
 			 for (int i = 0; i < selAtomsKind.size(); i++)
 			 {
@@ -642,7 +658,7 @@ namespace Avogadro
 					 << potentialName(selAtomsKind[i])
 					 << "\n";
 
-				 mol << "   &END KIND\n\n";
+				 mol << "   &END KIND\n";
 			 }
 		 }
 		 // Atom kind for QMMM-DFT ends.
@@ -669,6 +685,8 @@ namespace Avogadro
 
   void Cp2kInputDialog::setSelAtoms()
   {
+	  if( m_molecule == NULL ) return;
+
 	  selAtoms.clear();
 
 	  selatom tempsa;
@@ -686,6 +704,10 @@ namespace Avogadro
 
 				  tempsa.element = QString(etab.GetSymbol(a->atomicNumber()));
 				  tempsa.uid = a->OBAtom().GetId() + 1;
+				  // tempsa.idx = a->OBAtom().GetIdx(); // this is always zero!
+
+				  // tempsa.idx = m_molecule->atomById( a->OBAtom().GetId() )->OBAtom().GetIdx();
+				  tempsa.idx = m_molecule->OBMol().GetAtomById( a->OBAtom().GetId() )->GetIdx();
 
                   selAtoms.push_back(tempsa);
 				}
@@ -807,7 +829,6 @@ namespace Avogadro
 		  }
 		  */
 
-
 		  unsigned long qm = selAtoms[i].uid - 1;
 
 		  Atom* a = m_molecule->atomById(qm);
@@ -817,17 +838,21 @@ namespace Avogadro
 			  <<  "th atom's neigbour atoms are " << a->neighbors().size();
 		  */
 
-		  foreach(unsigned long uid, a->neighbors())
+		  foreach(unsigned long u, a->neighbors())
 		  {
 			  // qDebug() << "neigbour's uid" << uid << endl;
 
 			  for (int j = 0; j < mmuids.size(); j++)
 			  {
-				  if (uid + 1 == mmuids[j])
+				  if (u + 1 == mmuids[j])
 				  {
 					  linkatoms templa;
 					  templa.mmuid = mmuids[j];
 					  templa.qmuid = qm + 1;
+					  // templa.mmidx = m_molecule->atomById(u)->OBAtom().GetIdx();
+					  // templa.qmidx = a->OBAtom().GetIdx();
+					  templa.mmidx = m_molecule->OBMol().GetAtomById(u)->GetIdx();
+					  templa.qmidx = m_molecule->OBMol().GetAtomById(qm)->GetIdx();
 
 					  linkAtoms.push_back(templa);
 				  }
@@ -1285,6 +1310,7 @@ namespace Avogadro
 	  updatePreviewText();
   }
 
+  /*
   void Cp2kInputDialog::setAtomLabelUid( )
   { 
 	  
@@ -1301,7 +1327,8 @@ namespace Avogadro
 		  // set an atom's OBAtom::GetId() + 1 to the custom label
 	     foreach (Atom *atom, atoms) 
 	    {
-		    id.setNum(atom->OBAtom().GetId() + 1); 
+		    // id.setNum(atom->OBAtom().GetId() + 1); 
+			id.setNum(atom->OBAtom().GetIdx() ); 
 		    atom->setCustomLabel( id );
 
 	     }
@@ -1309,28 +1336,9 @@ namespace Avogadro
 
 	  else 	 foreach (Atom *atom, atoms) 
 		           atom->setCustomLabel("");
-	 
-
-	  /*
-	  QString id("");
-	  QList<Atom *> atoms = m_molecule->atoms();
-
-	  if ( n != 0 )
-	  {
-		  // set an atom's OBAtom::GetId() + 1 to the custom label
-		  foreach(Atom *atom, atoms)
-		  {
-			  id.setNum(atom->OBAtom().GetId() + 1);
-			  atom->setCustomLabel(id);
-
-		  }
-	  }
-
-	  else 	 foreach(Atom *atom, atoms)
-		  atom->setCustomLabel("");
-	*/
 
   }
+  */
 
   bool Cp2kInputDialog::uidComp( const uidcoord& left, const uidcoord& right )
   {

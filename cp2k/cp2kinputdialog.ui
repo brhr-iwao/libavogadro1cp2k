@@ -192,19 +192,6 @@
       </property>
      </widget>
     </widget>
-    <widget class="QCheckBox" name="showAtomUidCheck">
-     <property name="geometry">
-      <rect>
-       <x>280</x>
-       <y>50</y>
-       <width>201</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Show Atom Index as Custom Label</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QWidget" name="mmTab">
     <property name="toolTip">

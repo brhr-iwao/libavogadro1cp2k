@@ -36,9 +36,10 @@
 namespace Avogadro
 {
 
-  struct uidcoord // uid (unique ID + 1), element name and Coordinates
+  struct uidcoord // atom uid (unique ID + 1), atom index, element name and Coordinates
   {
 	  unsigned long uid;
+	  unsigned int idx;
 	  QString el;
 	  double x;
 	  double y;
@@ -48,13 +49,16 @@ namespace Avogadro
   struct selatom // selected atom
   {
 	  QString element;
-	  unsigned long uid; // unique id + 1
+	  unsigned long uid; // atom unique id + 1
+	  unsigned int idx;
   };
 
   struct linkatoms
   {
-	  unsigned long mmuid; // unique id + 1
+	  unsigned long mmuid; // unique id + 1 for mm atom
 	  unsigned long qmuid;
+      unsigned int  mmidx;
+	  unsigned int  qmidx;
   };
 
   class Molecule;
@@ -130,7 +134,7 @@ namespace Avogadro
 	void qmmmRadioChecked();
 
 	//void setAtomLabelUid(Qt::CheckState);
-	void setAtomLabelUid();
+	// void setAtomLabelUid(); // only this works.
 
   private Q_SLOTS:
     //! Button Slots
