@@ -103,11 +103,6 @@
        <string>Geometry Optimization</string>
       </property>
      </item>
-     <item>
-      <property name="text">
-       <string>Monte Carlo</string>
-      </property>
-     </item>
     </widget>
     <widget class="QLabel" name="runTypeLabel">
      <property name="geometry">
@@ -305,17 +300,12 @@
      </item>
      <item>
       <property name="text">
-       <string>DFTB (scc)</string>
+       <string>DFTB</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>DFTB (non-scc)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>SE (PM6)</string>
+       <string>SE</string>
       </property>
      </item>
     </widget>
@@ -642,6 +632,42 @@
     <attribute name="toolTip">
      <string>Density Functional Tight Binding Method Calculation Settings</string>
     </attribute>
+    <widget class="QLabel" name="sccTypeLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>121</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Charge Denity Type</string>
+     </property>
+     <property name="text">
+      <string>Charge Density Type:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="sccTypeCombo">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>10</y>
+       <width>181</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Self-Consistent (scc)</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Non Self-Consistent (non-scc)</string>
+      </property>
+     </item>
+    </widget>
    </widget>
    <widget class="QWidget" name="seTab">
     <attribute name="title">
@@ -650,6 +676,72 @@
     <attribute name="toolTip">
      <string>Semiemperical Method Calculation Settings</string>
     </attribute>
+    <widget class="QLabel" name="seMethodLabel">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>12</y>
+       <width>50</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Method:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="seMethodCombo">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>10</y>
+       <width>101</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Semiempirical electronic calculation method</string>
+     </property>
+     <item>
+      <property name="text">
+       <string>PM6</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MNDO</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>MNDOD</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>AM1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>PM3</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>PDG</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>RM1</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>PNNL</string>
+      </property>
+     </item>
+    </widget>
    </widget>
    <widget class="QWidget" name="qmmmTab">
     <attribute name="title">

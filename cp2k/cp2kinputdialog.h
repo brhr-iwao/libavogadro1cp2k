@@ -36,16 +36,6 @@
 namespace Avogadro
 {
 
-  struct uidcoord // atom uid (unique ID + 1), atom index, element name and Coordinates
-  {
-	  unsigned long uid;
-	  unsigned int idx;
-	  QString el;
-	  double x;
-	  double y;
-	  double z;
-  };
-
   struct selatom // selected atom
   {
 	  QString element;
@@ -92,8 +82,6 @@ namespace Avogadro
 	QString m_runType;
 
 	bool m_viewAtomUid;
-    // int m_viewAtomUid;
-	// Qt::CheckState m_viewAtomUid;
 
     bool m_mmRadioChecked;
 	bool m_qmRadioChecked;
@@ -115,12 +103,19 @@ namespace Avogadro
 	int m_nMultiGrid;
 	int m_cutOff;
 
+	// DFTB tab
+	bool is_scc;
+
+	// SE tab
+	QString m_seMethod;
+
+	// QMMM tab
+
    // Functions
 	// Common
 	QString generateInputDeck();
     void setAtomKindMol();
 	QString potentialName( QString atomType );
-	static bool uidComp( const uidcoord& left, const uidcoord& right );
 	static bool qstringEqual(const QString& left, const QString& right);
 	void setSelAtoms();
 	QString unitCell();
@@ -133,11 +128,8 @@ namespace Avogadro
 	void qmRadioChecked();
 	void qmmmRadioChecked();
 
-	//void setAtomLabelUid(Qt::CheckState);
-	// void setAtomLabelUid(); // only this works.
-
   private Q_SLOTS:
-    //! Button Slots
+    // Button Slots
     void resetClicked();
     void generateClicked();
 	void closeClicked();
@@ -162,6 +154,14 @@ namespace Avogadro
 	void setFunctional(int);
 	void setNMultiGrid(int);
 	void setCutOff(int);
+
+	// DFTB tab
+	void setDftbSCCType(int);
+
+	// SE tab
+	void setSEMethod(int);
+
+	// QMMM tab
 
   protected:
 	QString saveInputFile(QString inputDeck, QString fileType, QString ext);

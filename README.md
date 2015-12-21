@@ -41,11 +41,7 @@ This opens a dialog where correspondent parameters can be configured.
 
 **Note:** This software is in early developement stage and should be used for
 experimentation only. There is absolutely no guarantee of correctness of
-generated input files; they might produce unrealistic results, crash randomly,
-or scare your cat. Or any combination of those.
-
-(This note was shamelessly copied from a leading project [CP2K input generator for 
-Avogadro 2](https://github.com/infuniri/avogadrolibs-cp2k) )
+generated input files and there are probably many bugs.
 
 ###  Contact
 [Aoyama Iwao](https://github.com/brhr-iwao)
