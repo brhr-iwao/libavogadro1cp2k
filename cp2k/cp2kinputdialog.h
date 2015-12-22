@@ -43,7 +43,7 @@ namespace Avogadro
 	  unsigned int idx;
   };
 
-  struct linkatoms
+  struct linkatoms // qm-mm boundary atoms
   {
 	  unsigned long mmuid; // unique id + 1 for mm atom
 	  unsigned long qmuid;
@@ -104,12 +104,15 @@ namespace Avogadro
 	int m_cutOff;
 
 	// DFTB tab
-	bool is_scc;
+	bool m_isScc;
+	bool m_dispersion;
 
 	// SE tab
 	QString m_seMethod;
 
 	// QMMM tab
+
+	// MD tab
 
    // Functions
 	// Common
@@ -157,11 +160,14 @@ namespace Avogadro
 
 	// DFTB tab
 	void setDftbSCCType(int);
+	void setDftbDisp(int);
 
 	// SE tab
 	void setSEMethod(int);
 
 	// QMMM tab
+
+	// MD tab
 
   protected:
 	QString saveInputFile(QString inputDeck, QString fileType, QString ext);

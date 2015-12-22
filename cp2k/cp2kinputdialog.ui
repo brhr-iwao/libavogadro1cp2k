@@ -668,6 +668,19 @@
       </property>
      </item>
     </widget>
+    <widget class="QCheckBox" name="dispersionCheck">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>50</y>
+       <width>161</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Use Dispersion Correction</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="seTab">
     <attribute name="title">
@@ -753,16 +766,26 @@
     <widget class="QLabel" name="qmmmExplanationLabel">
      <property name="geometry">
       <rect>
-       <x>60</x>
+       <x>50</x>
        <y>20</y>
-       <width>251</width>
-       <height>31</height>
+       <width>261</width>
+       <height>51</height>
       </rect>
      </property>
      <property name="text">
-      <string>Select QM Atoms with Selection Tool (F11)  !</string>
+      <string>Select QM Atoms with Selection Tool (F11)  !
+Currently initial ALPHA is same for all link types.
+Please edit your generated input file.</string>
      </property>
     </widget>
+   </widget>
+   <widget class="QWidget" name="mdTab">
+    <property name="toolTip">
+     <string>Molecular Dynamics Settings</string>
+    </property>
+    <attribute name="title">
+     <string>MD</string>
+    </attribute>
    </widget>
   </widget>
   <widget class="QTextEdit" name="previewText">

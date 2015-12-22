@@ -80,6 +80,7 @@ namespace Avogadro
 
 	  // DFTB tab
 	  connect(ui.sccTypeCombo, SIGNAL(currentIndexChanged(int)),this, SLOT(setDftbSCCType(int)) );
+	  connect(ui.dispersionCheck, SIGNAL(stateChanged(int)), this, SLOT(setDftbDisp(int)));
 
 	  // SE tab
 	  connect(ui.seMethodCombo, SIGNAL(currentIndexChanged(int)),this, SLOT(setSEMethod(int)) );
@@ -125,7 +126,7 @@ namespace Avogadro
 
   Cp2kInputDialog::~Cp2kInputDialog()
   {
-	  // the following codes appeared not to work...
+	  // the following codes apparently does not work...
 	  QSettings settings;
       writeSettings(settings);
 
@@ -181,13 +182,14 @@ namespace Avogadro
 	 settings.setValue( "CP2K/CutOff", ui.cutOffSpin->value() );
 
 	 // DFTB tab
+	 settings.setValue( "CP2K/SCCType", ui.sccTypeCombo->currentIndex() );
+	 settings.setValue( "CP2K/Dispersion", ui.dispersionCheck->checkState() );
 
 	 // SE tab
 	 settings.setValue( "CP2K/SEMethod", ui.seMethodCombo->currentIndex() );
 
 	 // QMMM tab
-	 settings.setValue( "CP2K/SCCType", ui.sccTypeCombo->currentIndex() );
-
+	 
 	 // Common
 	 settings.setValue("CP2K/SavePath", m_savePath);
 
@@ -251,6 +253,9 @@ namespace Avogadro
 	 // DFTB tab
 	 ui.sccTypeCombo->setCurrentIndex( settings.value("CP2K/SCCType").toInt() );
 	 setDftbSCCType( settings.value("CP2K/SCCType").toInt() );
+
+	 ui.dispersionCheck->setCheckState( (Qt::CheckState)settings.value("CP2K/Dispersion", 0).toInt() );
+	 setDftbDisp( settings.value("CP2K/Dispersion", 0).toInt() );
 
 	 // SE tab
 	 ui.seMethodCombo->setCurrentIndex( settings.value("CP2K/SEMethod", 0).toInt() );
@@ -360,9 +365,13 @@ namespace Avogadro
 
 			else if (m_qmMethod == "DFTB")
 			{
-			   if( is_scc )
+			   if( m_isScc )
 			   {
 			      mol << tr("# Before using DFTB-SCC, please copy the scc folder\n");
+                  mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB\n" );
+			      mol << tr("# and its contents to ../(cp2k executable directory).\n");
+				  mol << "\n";
+				  mol << tr("# If you use dispersion correction, please copy uff_table\n");
                   mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB\n" );
 			      mol << tr("# and its contents to ../(cp2k executable directory).\n");
 			   }
@@ -371,6 +380,10 @@ namespace Avogadro
 			   {
 				  mol << tr("# Before using DFTB-NONSCC, please copy the nonscc folder\n");
 			      mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB\n" );
+			      mol << tr("# and its contents to ../(cp2k executable directory).\n");
+				  mol << "\n";
+				  mol << tr("# If you use dispersion correction, please copy uff_table\n");
+                  mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB\n" );
 			      mol << tr("# and its contents to ../(cp2k executable directory).\n");
 			   }
 
@@ -381,23 +394,34 @@ namespace Avogadro
 			   mol << "   METHOD DFTB\n";
 
 			   mol << "   &DFTB\n";
-               mol << "     SELF_CONSISTENT    T\n";
-               mol << "     DISPERSION         F\n";
+
+			   if( m_isScc )
+			   {  mol << "     SELF_CONSISTENT    T\n"; }
+			   else
+			   { mol << "     SELF_CONSISTENT    F\n";}
+
+			   if( m_dispersion )
+			   { mol << "     DISPERSION         T\n";}
+			   else
+			   { mol << "     DISPERSION         F\n";}
+
                mol << "     ORTHOGONAL_BASIS   F\n";  
                mol << "     DO_EWALD           F\n";
                mol << "     &PARAMETER\n";
 
-			   if( is_scc )
+			   if( m_isScc )
 			   {
                    mol << "      PARAM_FILE_PATH  ../scc\n";
                    mol << "      PARAM_FILE_NAME  scc_parameter\n";
 			   }
-
 			   else
 			   {
 				   mol << "      PARAM_FILE_PATH  ../nonscc\n";
                    mol << "      PARAM_FILE_NAME  nonscc_parameter\n";
 			   }
+
+			   if( m_dispersion )
+			   { mol << "      UFF_FORCE_FIELD  uff_table\n"; }
 
                mol << "     &END PARAMETER\n";
 			   mol << "   &END DFTB\n";
@@ -583,7 +607,21 @@ namespace Avogadro
 
 		 mol << " &END SUBSYS\n";
 
-	  mol << "&END FORCE_EVAL";
+	  mol << "&END FORCE_EVAL\n";
+
+	  if( m_runType == "MD" )
+	  {
+		  mol << "&MOTION\n";
+		  mol << " &MD\n";
+
+          mol << "   ENSEMBLE NVE\n";
+          mol << "   STEPS 10\n";
+          mol << "   TIMESTEP 0.5\n";
+          mol << "   TEMPERATURE 298\n";
+
+		  mol << " &END MD\n";
+		  mol << "&END MOTION\n";
+	  }
 
 
 	  return buffer;
@@ -795,13 +833,14 @@ namespace Avogadro
 	  ui.sccTypeCombo->setCurrentIndex(0);
 	  setDftbSCCType(0);
 
+	  ui.dispersionCheck->setCheckState((Qt::CheckState)0);
+	  setDftbDisp(0);
+
 	  // SE tab
 	  ui.seMethodCombo->setCurrentIndex(0);
 	  setSEMethod(0);
 
 	  // QMMM tab
-	  
-	  mmRadioChecked();
 
   }
 
@@ -834,18 +873,23 @@ namespace Avogadro
 	  {
 	    case 0:
 			m_runType = "ENERGY";
+			ui.mdTab->setEnabled(false);
 			break;
 	    case 1:
 			m_runType = "ENERGY_FORCE";
+			ui.mdTab->setEnabled(false);
 			break;
 		case 2:
 			m_runType = "MD";
+			ui.mdTab->setEnabled(true);
 			break;
 		case 3:
 			m_runType = "GEO_OPT";
+			ui.mdTab->setEnabled(false);
 			break;
 		default:
 			m_runType = "ENERGY";
+			ui.mdTab->setEnabled(false);
 			break;
 
 	  }
@@ -1022,17 +1066,35 @@ namespace Avogadro
 	  switch(n)
 	  {
 	    case 0:
-		  is_scc = true;
+		  m_isScc = true;
 		  break;
 		case 1:
-		  is_scc = false;
+		  m_isScc = false;
 		  break;
 		default:
-		  is_scc = true;
+		  m_isScc = true;
 		  break;
 	  }
 
 	  updatePreviewText();
+  }
+
+
+  void Cp2kInputDialog::setDftbDisp(int n)
+  {
+	  switch(n)
+	  {
+	    case 0:
+		default:
+	      m_dispersion = false;
+		  break;
+		case 1:
+		case 2:
+		  m_dispersion = true;
+		  break;
+	  }
+
+	 updatePreviewText();
   }
 
   void Cp2kInputDialog::setSEMethod(int n)
