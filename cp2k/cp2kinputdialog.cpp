@@ -121,7 +121,6 @@ namespace Avogadro
       readSettings(settings);
 
 	  updatePreviewText();
-
   }
 
   Cp2kInputDialog::~Cp2kInputDialog()
@@ -129,7 +128,6 @@ namespace Avogadro
 	  // the following codes apparently does not work...
 	  QSettings settings;
       writeSettings(settings);
-
   }
 
   void Cp2kInputDialog::setMolecule(Molecule *molecule)
@@ -341,7 +339,7 @@ namespace Avogadro
 			if( m_qmMethod == "DFT" )
 			{
 			   mol << tr("# Please copy the GTH_BASIS_SETS and POTENTIAL files\n");
-			   mol << tr("# which may have been in cp2k-2.x.x/data or cp2k-2.x.x/tests/QS directory\n");
+			   mol << tr("# which may have been in cp2k-x.x.x/data or cp2k-x.x.x/tests/QS directory\n");
 			   mol << tr("# to the CP2K executable directory if you use these default files.\n");
 
 			   mol << " &DFT\n";
@@ -368,23 +366,23 @@ namespace Avogadro
 			   if( m_isScc )
 			   {
 			      mol << tr("# Before using DFTB-SCC, please copy the scc folder\n");
-                  mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB\n" );
+                  mol << tr("# which may have been in cp2k-x.x.x/data/DFTB or cp2k-x.x.x/tests/DFTB\n" );
 			      mol << tr("# and its contents to ../(cp2k executable directory).\n");
-				  mol << "\n";
+				  mol << "#\n";
 				  mol << tr("# If you use dispersion correction, please copy uff_table\n");
-                  mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB\n" );
-			      mol << tr("# and its contents to ../(cp2k executable directory).\n");
+                  mol << tr("# which may have been in cp2k-x.x.x/data/DFTB or cp2k-x.x.x/tests/DFTB\n" );
+			      mol << tr("# to ../(cp2k executable directory).\n");
 			   }
 
 			   else
 			   {
 				  mol << tr("# Before using DFTB-NONSCC, please copy the nonscc folder\n");
-			      mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB\n" );
+			      mol << tr("# which may have been in cp2k-x.x.x/data/DFTB or cp2k-x.x.x/tests/DFTB\n" );
 			      mol << tr("# and its contents to ../(cp2k executable directory).\n");
-				  mol << "\n";
+				  mol << "#\n";
 				  mol << tr("# If you use dispersion correction, please copy uff_table\n");
-                  mol << tr("# which may have been in cp2k-2.x.x/data/DFTB or cp2k-2.x.x/tests/DFTB\n" );
-			      mol << tr("# and its contents to ../(cp2k executable directory).\n");
+                  mol << tr("# which may have been in cp2k-x.x.x/data/DFTB or cp2k-x.x.x/tests/DFTB\n" );
+			      mol << tr("# to ../(cp2k executable directory).\n");
 			   }
 
 			   mol << " &DFT\n";
@@ -623,7 +621,6 @@ namespace Avogadro
 		  mol << "&END MOTION\n";
 	  }
 
-
 	  return buffer;
 
   }
@@ -738,6 +735,7 @@ namespace Avogadro
 
 	  linkAtoms.clear();
 
+	  // find mm atoms connected to a qm atom and pack pairs into linkAtoms.
 	  for (int i = 0; i < selAtoms.size(); i++) // scan qm atoms
 	  {
 		  unsigned long qm = selAtoms[i].uid - 1;
@@ -774,7 +772,7 @@ namespace Avogadro
 
   void Cp2kInputDialog::resetClicked()
   {
-	  // Confirmation is need!
+	  // Confirmation need!
 
 	  // Basic Tab
 	  m_projectName = "myProject";
@@ -872,6 +870,7 @@ namespace Avogadro
 	  switch(n)
 	  {
 	    case 0:
+		default:
 			m_runType = "ENERGY";
 			ui.mdTab->setEnabled(false);
 			break;
@@ -887,11 +886,6 @@ namespace Avogadro
 			m_runType = "GEO_OPT";
 			ui.mdTab->setEnabled(false);
 			break;
-		default:
-			m_runType = "ENERGY";
-			ui.mdTab->setEnabled(false);
-			break;
-
 	  }
 
 	  updatePreviewText();
@@ -903,6 +897,7 @@ namespace Avogadro
 	  switch (n)
 	  {
 	  case 0:
+	  default:
 		  m_ewaldType = "NONE";
 		  break;
 	  case 1:
@@ -914,9 +909,6 @@ namespace Avogadro
 	  case 3:
 		  m_ewaldType = "SPME";
 		  break;
-	  default:
-		  m_ewaldType = "NONE";
-		  break;
 	  }
 
 	  updatePreviewText();
@@ -927,39 +919,41 @@ namespace Avogadro
 	  switch(n)
 	  {
 	    case 0:
+		default:
 			m_qmMethod = "DFT";
 
-		    //ui.mmTab->setEnabled(false);
-	        ui.qmTab->setEnabled(true);
-	        ui.dftTab->setEnabled(true);
-	        ui.dftbTab->setEnabled(false);
-	        ui.seTab->setEnabled(false);
-	        ui.qmmmTab->setEnabled(false);
+			if( m_qmRadioChecked || m_qmmmRadioChecked )
+			{
+	          ui.qmTab->setEnabled(true);
+	          ui.dftTab->setEnabled(true);
+	          ui.dftbTab->setEnabled(false);
+	          ui.seTab->setEnabled(false);
+			}
 
 			break;
 	    case 1:
 			m_qmMethod = "DFTB";
 
-			 //ui.mmTab->setEnabled(false);
-	         ui.qmTab->setEnabled(true);
-	         ui.dftTab->setEnabled(false);
-	         ui.dftbTab->setEnabled(true);
-	         ui.seTab->setEnabled(false);
-	         ui.qmmmTab->setEnabled(false);
+			if( m_qmRadioChecked || m_qmmmRadioChecked )
+			{
+	           ui.qmTab->setEnabled(true);
+	           ui.dftTab->setEnabled(false);
+	           ui.dftbTab->setEnabled(true);
+	           ui.seTab->setEnabled(false);
+			}
 
 			break;
 		case 2:
 			m_qmMethod = "SE";
 
-			//ui.mmTab->setEnabled(false);
-	        ui.qmTab->setEnabled(true);
-	        ui.dftTab->setEnabled(false);
-	        ui.dftbTab->setEnabled(false);
-	        ui.seTab->setEnabled(true);
-	        ui.qmmmTab->setEnabled(false);
+			if( m_qmRadioChecked || m_qmmmRadioChecked )
+			{
+	          ui.qmTab->setEnabled(true);
+	          ui.dftTab->setEnabled(false);
+	          ui.dftbTab->setEnabled(false);
+	          ui.seTab->setEnabled(true);
+			}
 
-			break;
-		default:
 			break;
 
 	  }
@@ -972,6 +966,7 @@ namespace Avogadro
 	  switch(n)
 	  {
 	    case 0:
+		default:
 			m_scfGuess = "ATOMIC";
 			break;
 		case 1:
@@ -998,9 +993,6 @@ namespace Avogadro
 		case 8:
 			m_scfGuess = "NONE";
 			break;
-		default:
-			m_scfGuess = "ATOMIC";
-			break;
 	  }
 
 	  updatePreviewText();
@@ -1011,6 +1003,7 @@ namespace Avogadro
 	  switch(n)
 	  {
 	    case 0:
+		default:
 		    m_basisSet = "SZV-GTH";
 		    break;
 		case 1:
@@ -1025,9 +1018,6 @@ namespace Avogadro
 		case 4:
 			m_basisSet = "TZV2P-GTH";
 			break;
-		default:
-			m_basisSet = "SZV-GTH";
-			break;
 	  }
 
 	  updatePreviewText();
@@ -1038,6 +1028,7 @@ namespace Avogadro
 	  switch(n)
 	  {
 	     case 0:
+		 default:
 			 m_functional = "BLYP";
 			 break;
 		 case 1:
@@ -1052,9 +1043,7 @@ namespace Avogadro
 		 case 4:
 			 m_functional = "PBE";
 			 break;
-		 default:
-			 m_functional = "BLYP";
-			 break;
+
 	  }
 
      updatePreviewText();
@@ -1066,13 +1055,11 @@ namespace Avogadro
 	  switch(n)
 	  {
 	    case 0:
+		default:
 		  m_isScc = true;
 		  break;
 		case 1:
 		  m_isScc = false;
-		  break;
-		default:
-		  m_isScc = true;
 		  break;
 	  }
 
@@ -1102,6 +1089,7 @@ namespace Avogadro
 	  switch(n)
 	  {
 	     case 0:
+		 default:
 			 m_seMethod = "PM6";
 			 break;
 		 case 1:
@@ -1124,9 +1112,6 @@ namespace Avogadro
 			 break;
 		 case 7:
 			 m_seMethod = "PNNL";
-			 break;
-		 default:
-			 m_seMethod = "PM6";
 			 break;
 	  }
 
@@ -1156,8 +1141,7 @@ namespace Avogadro
 		  it = unique(v0.begin(), v0.end());
 		  v0.erase(it, v0.end());
 
-		  int i;
-		  for( i=0; i<v0.size(); i++)
+		  for( int i=0; i<v0.size(); i++)
 		  { atomKindMol.push_back(OpenBabel::etab.GetSymbol(v0[i]));}
 	  }
 
@@ -1263,6 +1247,8 @@ namespace Avogadro
 	    ui.seTab->setEnabled(true);
 	  }
 
+	  ui.qmmmTab->setEnabled(false);
+
 	  updatePreviewText();
   }
 
@@ -1272,17 +1258,38 @@ namespace Avogadro
 	  m_qmRadioChecked = false;
 	  m_qmmmRadioChecked = true;
 
+	  ui.mmTab->setEnabled(true);
+
 	  /*
 	  ui.qmMethodLabel->show();
 	  ui.qmMethodCombo->show();
 	  */
 
-	  ui.mmTab->setEnabled(true);
-	  ui.qmTab->setEnabled(true);
-	  ui.dftTab->setEnabled(true);
-	  ui.dftbTab->setEnabled(true);
-	  ui.seTab->setEnabled(true);
-	  ui.qmmmTab->setEnabled(true);
+	  if(m_qmMethod == "DFT")
+	  {
+	    ui.qmTab->setEnabled(true);
+	    ui.dftTab->setEnabled(true);
+	    ui.dftbTab->setEnabled(false);
+	    ui.seTab->setEnabled(false);
+	  }
+
+	  else if( m_qmMethod == "DFTB" )
+	  {
+		ui.qmTab->setEnabled(true);
+	    ui.dftTab->setEnabled(false);
+	    ui.dftbTab->setEnabled(true);
+	    ui.seTab->setEnabled(false);
+	  }
+
+	  else if(m_qmMethod == "SE")
+	  {
+		ui.qmTab->setEnabled(true);
+	    ui.dftTab->setEnabled(false);
+	    ui.dftbTab->setEnabled(false);
+	    ui.seTab->setEnabled(true);
+	  }
+
+	   ui.qmmmTab->setEnabled(true);
 
 	  updatePreviewText();
   }
