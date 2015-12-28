@@ -30,8 +30,6 @@
 #include <QFileInfo>
 
 #include "ui_cp2kinputdialog.h"
-#include "../constraintsmodel.h"
-
 
 namespace Avogadro
 {
@@ -65,13 +63,11 @@ namespace Avogadro
     void writeSettings(QSettings&) const;
 	void readSettings(QSettings&);
 
-	void setModel(ConstraintsModel *model);
-
   private:
     // Variables
 	// Common
     Ui::Cp2kInputDialog ui;
-	ConstraintsModel *m_constraints;
+
     std::vector<QString> atomKindMol;
 	std::vector<selatom> selAtoms;
 	std::vector<QString> selAtomsKind;
@@ -111,8 +107,10 @@ namespace Avogadro
 	QString m_seMethod;
 
 	// QMMM tab
+	QString m_qmmmElectrostaticCoupling;
 
 	// MD tab
+	QString m_ensemble;
 
    // Functions
 	// Common
@@ -166,8 +164,10 @@ namespace Avogadro
 	void setSEMethod(int);
 
 	// QMMM tab
+	void setQMMMElectrostaticCoupling(int);
 
 	// MD tab
+	void setEnsemble(int);
 
   protected:
 	QString saveInputFile(QString inputDeck, QString fileType, QString ext);

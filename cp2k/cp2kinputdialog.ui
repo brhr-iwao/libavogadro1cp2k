@@ -29,7 +29,7 @@
   <widget class="QTabWidget" name="cp2kinputTabs">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>10</y>
      <width>591</width>
      <height>171</height>
@@ -767,7 +767,7 @@
      <property name="geometry">
       <rect>
        <x>50</x>
-       <y>20</y>
+       <y>10</y>
        <width>261</width>
        <height>51</height>
       </rect>
@@ -778,6 +778,49 @@ Currently initial ALPHA is same for all link types.
 Please edit your generated input file.</string>
      </property>
     </widget>
+    <widget class="QLabel" name="qmmmElectroCoupleLabel">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>161</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>QM-MM electrostatic coupling:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="qmmmElectroCoupleCombo">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>60</y>
+       <width>181</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>Mechanical</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Coulomb</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Fast Gaussian Expansion</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>S-wave Fast Gaussian</string>
+      </property>
+     </item>
+    </widget>
    </widget>
    <widget class="QWidget" name="mdTab">
     <property name="toolTip">
@@ -786,6 +829,39 @@ Please edit your generated input file.</string>
     <attribute name="title">
      <string>MD</string>
     </attribute>
+    <widget class="QLabel" name="ensembleLabel">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>5</y>
+       <width>61</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Ensemble:</string>
+     </property>
+    </widget>
+    <widget class="QComboBox" name="ensembleCombo">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>10</y>
+       <width>91</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <item>
+      <property name="text">
+       <string>NVE</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>NVT</string>
+      </property>
+     </item>
+    </widget>
    </widget>
   </widget>
   <widget class="QTextEdit" name="previewText">

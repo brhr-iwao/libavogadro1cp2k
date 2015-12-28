@@ -42,7 +42,7 @@ using namespace OpenBabel;
 namespace Avogadro
 {
   Cp2kInputDialog::Cp2kInputDialog(QWidget *parent, Qt::WindowFlags f) : 
-                QDialog(parent, f), m_molecule(0),
+                QDialog(parent, f), m_molecule(0), /*m_constraints(0),*/
                 m_multiplicity(1), m_charge(0), m_savePath("")
   {
 	  ui.setupUi(this);
@@ -86,6 +86,10 @@ namespace Avogadro
 	  connect(ui.seMethodCombo, SIGNAL(currentIndexChanged(int)),this, SLOT(setSEMethod(int)) );
 
 	  // QMMM tab
+      connect(ui.qmmmElectroCoupleCombo, SIGNAL(currentIndexChanged(int)),this, SLOT(setQMMMElectrostaticCoupling(int)) );
+
+	  // MD tab
+	  connect(ui.ensembleCombo, SIGNAL(currentIndexChanged(int)),this, SLOT(setEnsemble(int)) );
 
 	  // Initial settings
 	  // Basic tab
@@ -117,6 +121,8 @@ namespace Avogadro
 
 	  // QMMM tab
 
+	  // MD tab
+
 	  QSettings settings;
       readSettings(settings);
 
@@ -146,11 +152,6 @@ namespace Avogadro
 
   }
 
-  void Cp2kInputDialog::setModel(ConstraintsModel *model)
-  {
-	  if (m_constraints) disconnect(m_constraints, 0, this, 0);
-      m_constraints = model;
-  }
 
   void Cp2kInputDialog::writeSettings(QSettings &settings) const
   {
@@ -187,6 +188,10 @@ namespace Avogadro
 	 settings.setValue( "CP2K/SEMethod", ui.seMethodCombo->currentIndex() );
 
 	 // QMMM tab
+	 settings.setValue( "CP2K/Ecouple", ui.qmmmElectroCoupleCombo->currentIndex() );
+
+	 // MD tab
+	 settings.setValue( "CP2k/Ensemble", ui.ensembleCombo->currentIndex() );
 	 
 	 // Common
 	 settings.setValue("CP2K/SavePath", m_savePath);
@@ -260,6 +265,12 @@ namespace Avogadro
 	 setSEMethod( settings.value("CP2K/SEMethod", 0).toInt() );
 
 	 // QMMM tab
+	 ui.qmmmElectroCoupleCombo->setCurrentIndex( settings.value("CP2k/Ecouple", 0).toInt() );
+	 setQMMMElectrostaticCoupling( settings.value("CP2k/Ecouple", 0).toInt() );
+
+	 // MD tab
+	 ui.ensembleCombo->setCurrentIndex( settings.value("CP2K/Ensemble", 0).toInt() );
+	 setEnsemble( settings.value("CP2K/Ensemble", 0).toInt() );
 
 	 // Common
 	 m_savePath = settings.value("CP2K/SavePath").toString();
@@ -462,7 +473,7 @@ namespace Avogadro
 		{
 		    mol << endl;
 		    mol << " &QMMM\n";
-			// mol << "  ECOUPL NONE\n";
+			mol << "  ECOUPL " << m_qmmmElectrostaticCoupling << "\n";
 
 			setSelAtoms();
 
@@ -603,7 +614,25 @@ namespace Avogadro
 	    mol << unitCell();
 	   	mol << "  &END CELL\n";
 
-		 mol << " &END SUBSYS\n";
+        /*
+		if( Constraints != NULL )
+		{
+			mol << "   &COLVAR\n";
+
+			for( int i = 0 ; i < Constraints->rowCount() ; i++ )
+			{
+				if( Constraints->constraints().GetConstraintType( i ) == OBFF_CONST_IGNORE )
+				{
+					mol << "#   atom " << Constraints->constraints().GetConstraintAtomA( i ) << " is ignored\n";
+				}
+			}
+
+			mol << "   &END COLVAR\n";
+		}
+		*/
+
+
+		mol << " &END SUBSYS\n";
 
 	  mol << "&END FORCE_EVAL\n";
 
@@ -612,7 +641,7 @@ namespace Avogadro
 		  mol << "&MOTION\n";
 		  mol << " &MD\n";
 
-          mol << "   ENSEMBLE NVE\n";
+          mol << "   ENSEMBLE " << m_ensemble << "\n";
           mol << "   STEPS 10\n";
           mol << "   TIMESTEP 0.5\n";
           mol << "   TEMPERATURE 298\n";
@@ -839,6 +868,12 @@ namespace Avogadro
 	  setSEMethod(0);
 
 	  // QMMM tab
+	  ui.qmmmElectroCoupleCombo->setCurrentIndex(0);
+	  setQMMMElectrostaticCoupling(0);
+
+	  // MD tab
+	  ui.ensembleCombo->setCurrentIndex(0);
+	  setEnsemble(0);
 
   }
 
@@ -1118,6 +1153,44 @@ namespace Avogadro
      updatePreviewText();
 
   }
+
+  void Cp2kInputDialog::setQMMMElectrostaticCoupling(int n)
+  {
+	  switch(n)
+	  {
+	    case 0:
+		default:
+			m_qmmmElectrostaticCoupling = "NONE";
+			break;
+		case 1:
+            m_qmmmElectrostaticCoupling = "COULOMB";
+			break;
+		case 2:
+            m_qmmmElectrostaticCoupling = "GAUSS";
+			break;
+		case 3:
+			m_qmmmElectrostaticCoupling = "S-WAVE";
+            break;
+	  }
+
+	  updatePreviewText();
+  }
+
+   void Cp2kInputDialog::setEnsemble(int n)
+   {
+	   switch(n)
+	   {
+	     case 0:
+	     default:
+		     m_ensemble = "NVE";
+		     break;
+		 case 1:
+			 m_ensemble = "NVT";
+			 break;
+	   }
+
+	    updatePreviewText();
+   }
   
 
   // Extracts atom kinds from m_molecule.
@@ -1329,7 +1402,7 @@ namespace Avogadro
 
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save CP2K Input"),
                                                       defaultFileName, fileType + " (*." + ext + ")");
-	// m_savePath = defaultPath; // set current path to save path.
+	m_savePath = defaultPath; // set current path to save path.
 
     if(fileName == "")
       return fileName;
