@@ -309,7 +309,7 @@ namespace Avogadro
 			else if(m_qmmmRadioChecked)
 				mol << " METHOD QMMM\n";
 
-		    mol << " &MM\n";
+		        mol << " &MM\n";
 
 				mol << "  &FORCEFIELD\n";
 
@@ -332,7 +332,15 @@ namespace Avogadro
 				mol << "   &END EWALD\n";
 				mol << "  &END POISSON\n";
 
-			mol << " &END MM\n";
+				if (m_runType == "VIBRATIONAL_ANALYSIS")
+				{
+					mol << "  &PRINT\n";
+					mol << "    &DIPOLE\n";
+					mol << "    &END DIPOLE\n";
+					mol << "  &END PRINT\n";
+				}
+
+			    mol << " &END MM\n";
 		}
 		// MM or QMMM ends.
 
@@ -346,6 +354,8 @@ namespace Avogadro
 
 			// else if(m_qmmmRadioChecked) then use METHOD QMMM as the previous shown.
 
+			mol << " &DFT\n";
+
 			// DFT
 			if( m_qmMethod == "DFT" )
 			{
@@ -353,7 +363,7 @@ namespace Avogadro
 			   mol << tr("# which may have been in cp2k-x.x.x/data or cp2k-x.x.x/tests/QS directory\n");
 			   mol << tr("# to the CP2K executable directory if you use these default files.\n");
 
-			   mol << " &DFT\n";
+			   // mol << " &DFT\n";
 			   mol << "   CHARGE " << m_charge << "\n";
 			   mol << "   MULTIPLICITY " << m_multiplicity << "\n";
 
@@ -369,7 +379,7 @@ namespace Avogadro
                mol << "   &END XC_FUNCTIONAL\n";
                mol << "  &END XC\n";
 
-			   mol << " &END DFT\n";
+			   // mol << " &END DFT\n";
 			}
 
 			else if (m_qmMethod == "DFTB")
@@ -396,7 +406,7 @@ namespace Avogadro
 			      mol << tr("# to ../(cp2k executable directory).\n");
 			   }
 
-			   mol << " &DFT\n";
+			   // mol << " &DFT\n";
 			   mol << "   CHARGE " << m_charge << "\n";
 			   mol << "   MULTIPLICITY " << m_multiplicity << "\n";
 			   mol << "  &QS\n";
@@ -442,12 +452,12 @@ namespace Avogadro
 			   mol << "   MAX_SCF " << m_maxSCF << "\n";
 			   mol << "  &END SCF\n";
 
-			   mol << " &END DFT\n";
+			   // mol << " &END DFT\n";
 			}
 
 			else if (m_qmMethod == "SE")
 			{
-			   mol << " &DFT\n";
+			   // mol << " &DFT\n";
 			   mol << "   CHARGE " << m_charge << "\n";
 			   mol << "   MULTIPLICITY " << m_multiplicity << "\n";
 			   mol << "  &QS\n";
@@ -462,8 +472,27 @@ namespace Avogadro
 			   mol << "    MAX_SCF  " << m_maxSCF << "\n";
                mol << "  &END SCF\n";
 
-			   mol << " &END DFT\n";
+			   // mol << " &END DFT\n";
 			}
+
+			if (m_runType == "VIBRATIONAL_ANALYSIS")
+			{
+				/*
+				mol << "  &LOCALIZE\n";
+				mol << "   &PRINT\n";
+				mol << "     &TOTAL_DIPOLE ON\n";
+				mol << "     &END TOTAL_DIPOLE\n";
+				mol << "   &END PRINT\n";
+				mol << "  &END LOCALIZE\n";
+				*/
+
+				mol << "  &PRINT\n";
+				mol << "    &MOMENTS HIGH\n";
+				mol << "    &END MOMENTS\n";
+				mol << "  &END PRINT\n";
+			}
+
+			mol << " &END DFT\n";
 
 		}
 		// QM or QMMM ends.
@@ -614,24 +643,6 @@ namespace Avogadro
 	    mol << unitCell();
 	   	mol << "  &END CELL\n";
 
-        /*
-		if( Constraints != NULL )
-		{
-			mol << "   &COLVAR\n";
-
-			for( int i = 0 ; i < Constraints->rowCount() ; i++ )
-			{
-				if( Constraints->constraints().GetConstraintType( i ) == OBFF_CONST_IGNORE )
-				{
-					mol << "#   atom " << Constraints->constraints().GetConstraintAtomA( i ) << " is ignored\n";
-				}
-			}
-
-			mol << "   &END COLVAR\n";
-		}
-		*/
-
-
 		mol << " &END SUBSYS\n";
 
 	  mol << "&END FORCE_EVAL\n";
@@ -648,6 +659,22 @@ namespace Avogadro
 
 		  mol << " &END MD\n";
 		  mol << "&END MOTION\n";
+	  }
+
+	  if (m_runType == "VIBRATIONAL_ANALYSIS")
+	  {
+		  mol << "&VIBRATIONAL_ANALYSIS\n";
+
+		  mol << " NPROC_REP 1\n";
+		  mol << " DX 0.01\n";
+		  mol << " INTENSITIES T\n";
+
+		  mol << " &MODE_SELECTIVE\n";
+		  mol << "  FREQUENCY 3000\n";
+		  // mol << "  INITIAL_GUESS BFGS_HESS\n";
+		  mol << " &END MODE_SELECTIVE\n";
+
+		  mol << "&END VIBRATIONAL_ANALYSIS\n";
 	  }
 
 	  return buffer;
@@ -919,6 +946,10 @@ namespace Avogadro
 			break;
 		case 3:
 			m_runType = "GEO_OPT";
+			ui.mdTab->setEnabled(false);
+			break;
+		case 4:
+			m_runType = "VIBRATIONAL_ANALYSIS";
 			ui.mdTab->setEnabled(false);
 			break;
 	  }
