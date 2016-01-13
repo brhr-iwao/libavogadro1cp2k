@@ -488,6 +488,8 @@ namespace Avogadro
 
 				mol << "  &PRINT\n";
 				mol << "    &MOMENTS HIGH\n";
+				mol << "     &EACH 1\n";
+				mol << "     &END EACH\n";
 				mol << "    &END MOMENTS\n";
 				mol << "  &END PRINT\n";
 			}

@@ -31,11 +31,13 @@
 
 #include "ui_psfpotdialog.h"
 
+#define EPS 0.01 // for double-double comparison
+
 using namespace OpenBabel;
 
 namespace Avogadro
 {
-   // Three struct used for building charmm-style parameter file
+   // Five structures used for building charmm-style parameter file
    struct bondKind
   {
 	char    aT1[3];    // atom Type 1, two roman letters and '\0'
@@ -52,12 +54,12 @@ namespace Avogadro
 	char  aT3[3]; // atom Type 3
 	double  Kth;  // constant of bending motion (kcal/(mol radian^2))
 	double  theq; // equibrium angle (degree)
-	unsigned int aN1; // atomic number of 1. added in version 3
+	unsigned int aN1; // atomic number of 1.
 	unsigned int aN2;
 	unsigned int aN3;
-	double  r1c; // currnet bond length (A) between 1-2 atoms. added in version 3
-	double  r2c; // currnet bond length (A) between 2-3 atoms. added in version 3
-    double  thc; // current angle (degree). added in version 3
+	double  r1c; // currnet bond length (A) between 1-2 atoms. 
+	double  r2c; // currnet bond length (A) between 2-3 atoms. 
+    double  thc; // current angle (degree). 
    };
 
    struct torKind
@@ -68,8 +70,9 @@ namespace Avogadro
 	char  aT4[3];
 	int   m;        // number of bond paths. ignoired.
 	double   vn2;   // equals to Kchi for charmm pot (kcal/mol)
-	double   gamma; // equals to delta for charmm pot (degree)
-    double  n;      // the periodicity of torsion
+	double   gamma; // equals to delta for charmm pot (degree) (phase)
+    double  n;      // the periodicity of torsion (multiplicity)
+	bool  listed;   // an internal flag (this data is from gaff.dat or not?)
    };
 
    struct oopKind
@@ -81,6 +84,7 @@ namespace Avogadro
 	double   vn2;   // equals to Kchi for charmm pot (kcal/mol)
 	double   gamma; // equals to delta for charmm pot (degree)
     double  n;      // the periodicity of torsion
+	bool  listed;   // an internal flag (this data is from gaff.dat or not?)
    };
 
    struct nbKind
@@ -102,6 +106,8 @@ namespace Avogadro
 	 void setMolecule(Molecule *molecule);
 	 void readSettings(QSettings&);
      void writeSettings(QSettings&) const;
+
+	 bool matchesBondSMARTS( OBAtom*, OBAtom*, const char*);
 
     private:
       Ui::PsfPotDialog ui;
@@ -128,6 +134,8 @@ namespace Avogadro
 	 void acquireWholeAngles( OBMol mol, std::vector<angleKind>* ak );
 	 double gaffAngleC( unsigned int atomicNum );
 	 double gaffAngleZ( unsigned int atomicNum );
+
+	 std::pair<double, double> perceiveMultiPhase( OBAtom*, OBAtom*, OBAtom*, OBAtom* );
 
 	 bool Updated;
 

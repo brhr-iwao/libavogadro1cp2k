@@ -87,6 +87,49 @@ namespace Avogadro
 	  settings.setValue("PsfPot/SavePath", m_savePath);
   }
 
+  // Somthing like OpenBabel::OBAtom::MatchesSMARTS( const char* ) for a bond.
+  // b and c are atoms at each bond ends.
+  // pattern is a SMARTS pattern which should be checked out whether this bond matches.
+  // e.g. "*-*", "*=*", "*~*", "*#*". Don't forget * at both ends.
+  bool PsfPotDialog::matchesBondSMARTS( OBAtom* b, OBAtom* c, const char* pchar )
+  {
+	  if( b == NULL || c == NULL || pchar == NULL 
+		  || b->GetParent() == NULL || c->GetParent() == NULL ) return false;
+
+	  if( b->GetParent() != c->GetParent() ) return false;
+
+	  OBMol* parent = b->GetParent();
+
+	  OBSmartsPattern pattern;
+
+	  pattern.Init(pchar);
+	  pattern.Match(*parent);
+
+	  // a maplist, a 2d-array
+	  vector<vector<int>> maplist = pattern.GetMapList();
+
+	  for( vector<vector<int>>::iterator i = maplist.begin()
+		  ; i != maplist.end()
+		  ; ++i ) // scan rows of the maplist
+	  {
+		  bool firstMatch = false;
+
+		  for ( vector<int>::iterator j = i->begin() 
+			   ; j != i->end()
+			   ; ++j ) // scan columns of the maplist
+		  {
+			  if( *j == b->GetIdx() ) { firstMatch = true;}
+
+			  if( firstMatch )
+			  {
+				  if( *j == c->GetIdx() ) return true;
+			  }
+		  }
+	  }
+
+	  return false;
+  }
+
   QString PsfPotDialog::psfPreviewPane()
   {
 	  // GAFF case
@@ -320,6 +363,7 @@ namespace Avogadro
 
     if( left1 < right1 ) return true;
 
+	/*
 	else if ( left1 == right1 )
 	{
 		 if( left2 < right2 ) return true;
@@ -340,6 +384,42 @@ namespace Avogadro
 
 		 else return false;
 	}
+    */
+
+    else if ( left1 == right1 )
+	{
+		 if( left2 < right2 ) return true;
+
+		 else if( left2 == right2 )
+		 {
+			 if( left3 < right3 ) return true;
+
+			 else if( left3 == right3 )
+			 {
+				 if( left4 < right4 )
+					 return true;
+
+				 else if( left4 == right4 )
+				 {
+					 if( left.gamma < right.gamma ) return true;
+
+					 else if( left.gamma == right.gamma ) // float == float
+					 {
+						 if( left.n < right.n ) return true;
+						 else return false;
+					 }
+
+					 else return false; 
+				 }
+
+				 else return false;
+	
+			 }
+			 else return false;
+		 }
+
+		 else return false;
+	}
 
 	else return false;
   }
@@ -347,6 +427,7 @@ namespace Avogadro
 
   bool PsfPotDialog::torTypeEqual( const torKind& left, const torKind& right )
   {
+	/*
 	if( ( strcmp( left.aT1, right.aT1 ) == 0 ) && (strcmp( left.aT2, right.aT2 ) == 0)
 		&& (strcmp( left.aT3, right.aT3 ) == 0) && (strcmp( left.aT4, right.aT4 ) == 0) )
 		return true;
@@ -357,6 +438,21 @@ namespace Avogadro
 		return true;
 
 	else return false;
+	*/
+
+	if( ( strcmp( left.aT1, right.aT1 ) == 0 ) && (strcmp( left.aT2, right.aT2 ) == 0)
+		&& (strcmp( left.aT3, right.aT3 ) == 0) && (strcmp( left.aT4, right.aT4 ) == 0) 
+		&& fabs(left.gamma - right.gamma) < EPS && fabs(left.n - right.n ) < EPS )
+		return true;
+
+	// reverse order (1-2-3-4 to 4-3-2-1)
+	else if( ( strcmp( left.aT1, right.aT4 ) == 0 ) && (strcmp( left.aT2, right.aT3 ) == 0)
+		&& (strcmp( left.aT3, right.aT2 ) == 0) && (strcmp( left.aT4, right.aT1 ) == 0) 
+	    && fabs(left.gamma - right.gamma) < EPS && fabs(left.n - right.n ) < EPS )
+		return true;
+
+	else return false;
+
   }
 
   bool PsfPotDialog::oopTypeComp( const oopKind& left, const oopKind& right )
@@ -572,6 +668,89 @@ namespace Avogadro
 	}
   }
 
+  // Perceive multiplicity and phase for pot on accordance with the initial geometry.
+  //
+  // return value is a pair which consists of 
+  // multiplicity of torsion (first member) and
+  // phase in degree (second member).
+  std::pair<double, double> PsfPotDialog::perceiveMultiPhase( OBAtom* a, 
+	                                                          OBAtom* b, 
+															  OBAtom* c, 
+															  OBAtom* d )
+  {
+     #define  COS20D   0.93969262078591
+     #define  COS160D  -1.00000000000000 + COS20D
+     #define  PI       3.141592653589793
+
+	  std::pair<double,double> temp;
+
+	  // initialize
+      temp.first = -10000.0;
+	  temp.second = 10000.0;
+
+	  // temp.first =  0.0;
+	  // temp.second = 0.0;
+
+	 if( a == NULL || b == NULL || c == NULL || d == NULL 
+		  || a->GetParent() == NULL || b->GetParent() == NULL
+		  || c->GetParent() == NULL || d->GetParent() == NULL
+		  || a->GetParent() != b->GetParent() 
+	      || b->GetParent() != c->GetParent() 
+		  || c->GetParent() != d->GetParent()
+		  || d->GetParent() != a->GetParent() )
+	 {
+		 qDebug() << tr("perceiveMultiPhase(): Invalid argument") << endl;
+		 return temp;
+	 }
+
+	 OBMol* parent = a->GetParent();
+
+	 // cis
+	 // -20D < torsion angle < 20D and b-c is double bond
+	 if( cos( parent->GetTorsion( a, b, c, d ) *PI/180.0 ) > COS20D &&  matchesBondSMARTS( b, c, "*=*") ) 
+	 {
+		 temp.first = 1.0;
+		 temp.second = 180.0;
+         return temp;
+	 }
+
+	 // trans
+	 else if( cos( parent->GetTorsion( a, b, c, d ) *PI/180.0 ) < COS160D &&  matchesBondSMARTS( b, c, "*=*") ) 
+	 {
+		 temp.first = 1.0;
+		 temp.second = 0.0;
+		 return temp;
+	 }
+
+	 // eclipsed
+	 else if( cos( parent->GetTorsion( a, b, c, d ) *PI/180.0 ) > COS20D &&  matchesBondSMARTS( b, c, "*-*") ) 
+	 {
+		 temp.first = 3.0;
+		 temp.second = 180.0;
+		 return temp;
+	 }
+
+	 // staggerd
+	 else if( cos( parent->GetTorsion( a, b, c, d ) *PI/180.0 ) < COS20D &&  matchesBondSMARTS( b, c, "*-*") ) 
+	 {
+		 temp.first = 3.0;
+		 temp.second = 0.0;
+		 return temp;
+	 }
+
+	 // planer ( both b and c are aromatic )
+	 else if ( b->MatchesSMARTS("[a]") && c->MatchesSMARTS("[a]") ) 
+	 {
+		 temp.first = 2.0;
+		 temp.second = 180.0;
+		 return temp;
+	 }
+
+	 else return temp;
+	  
+  }
+
+
   int PsfPotDialog::connAtoms( OBAtom* a )
   {
 	  if( a == NULL ) return -1;
@@ -585,7 +764,7 @@ namespace Avogadro
   }
 
   /*
-  // The following functions will be move to the other cpp files
+  // The following functions will be move to other cpp files
   //
   //
   //
@@ -1008,8 +1187,12 @@ namespace Avogadro
 
 	            tempTor.m = 0;
 	            tempTor.vn2 = 0.0;
-	            tempTor.gamma = 0.0;
-	            tempTor.n = 0.0;
+	            // tempTor.gamma = 0.0;
+	            // tempTor.n = 0.0;
+
+				tempTor.n = perceiveMultiPhase( a, b, c, d ).first;
+				tempTor.gamma = perceiveMultiPhase( a, b, c, d ).second;
+				tempTor.listed = false;
 
 	            tkmol.push_back( tempTor );
 
@@ -1094,6 +1277,7 @@ namespace Avogadro
 		            tempOop.vn2 = 0.0;
 		            tempOop.gamma = 0.0;
 		            tempOop.n = 0;
+					tempOop.listed = false;
 
 		           okmol.push_back( tempOop );
 
@@ -1183,7 +1367,7 @@ namespace Avogadro
 			           if( pchar != NULL )
 			           { tReq = atof(pchar);}
 
-			          // if match temporary atom types and mol bonds ones
+			          // if match temporary atom types from gaff.dat and atom types on mol bonds
 			          for( i = 0 ; i < bkmol.size() ; i++ )
 			          {
 				            if ( ( stricmp( bkmol[i].aT1, tAtom1 ) ==0 && stricmp( bkmol[i].aT2, tAtom2) == 0 ) ||
@@ -1244,10 +1428,12 @@ namespace Avogadro
 	         else if( iBlock == 3 )
 	        {
 		        char tAtom1[3], tAtom2[3], tAtom3[3], tAtom4[3]; // temporarily stored atom types read from lines.
-			    strcpy( tAtom1, "" ); // initialize
-			    strcpy( tAtom2, "" ); // initialize
-			    strcpy( tAtom3, "" ); // initialize
-			    strcpy( tAtom4, "" ); // initialize
+
+				// initialize
+			    strcpy( tAtom1, "" ); 
+			    strcpy( tAtom2, "" );
+			    strcpy( tAtom3, "" );
+			    strcpy( tAtom4, "" );
 
 	            double  tVn2 = 0.0; 
 	            double  tGamma = 0.0; 
@@ -1271,18 +1457,19 @@ namespace Avogadro
 
 			    pchar = strtok( NULL, "-, "); // ignore fifth column (number of path)...
 			    pchar = strtok( NULL, "-, "); // and call sixth token ( magnitude of torsion )
-			    if( pchar != NULL)
+			    if( pchar != NULL )
 			       { tVn2 = atof(pchar);} // magnitude of torsion in kcal/mol (Vn/2)
 
 			    pchar = strtok( NULL, "-, "); // call seventh token ( phase offset )
-			    if( pchar != NULL)
+			    if( pchar != NULL )
 			        { tGamma = atof(pchar);} // phese offset in degree 
 
 			    pchar = strtok( NULL, "-, "); // call eightth token ( periodicity of torsion )
-			    if( pchar != NULL)
+			    if( pchar != NULL) 
 			       { tN = atof(pchar);} // periodicity of torsion
 
-				// Multipilicity and phase of torsion are not yet considered in the extraction of parameters....
+				// Multipilicity and phase of torsion are not considered during the extraction of parameters...
+				/*
 			    for( i = 0 ; i < tkmol.size() ; i++ )
 			    {
 					// 1-2-3-4 or 4-3-2-1 atoms are found in gaff.dat
@@ -1303,6 +1490,36 @@ namespace Avogadro
 					 tkmol[i].vn2 = tVn2;
 					 tkmol[i].gamma = tGamma;
 					 tkmol[i].n = tN;
+				   }
+			    }
+				*/
+				
+			    for( i = 0 ; i < tkmol.size() ; i++ )
+			    {
+					// 1-2-3-4 or 4-3-2-1 atoms are found in gaff.dat
+				  if( ( stricmp( tkmol[i].aT1, tAtom1 ) ==0 && stricmp( tkmol[i].aT2, tAtom2 ) ==0 
+					   && stricmp( tkmol[i].aT3, tAtom3 ) ==0 && stricmp( tkmol[i].aT4, tAtom4 ) ==0 )
+				     || ( stricmp( tkmol[i].aT1, tAtom4 ) ==0 && stricmp( tkmol[i].aT2, tAtom3 ) ==0 
+					   && stricmp( tkmol[i].aT3, tAtom2 ) ==0 && stricmp( tkmol[i].aT4, tAtom1 ) ==0 ))
+				  {
+					  if( fabs( tkmol[i].gamma - tGamma) < EPS && fabs( tkmol[i].n - tN ) < EPS )
+					  {
+					      tkmol[i].vn2 = tVn2;
+					      tkmol[i].listed = true;
+					  }
+				  }
+
+                   // only 2-3 atoms are found in gaff.dat
+				  else if ( ( stricmp( tkmol[i].aT1, "X" ) ==0 &&  stricmp( tkmol[i].aT2, tAtom2 ) ==0 
+					         && stricmp( tkmol[i].aT3, tAtom3) == 0 && stricmp( tkmol[i].aT4, "X" ) ==0 )
+                        || ( stricmp( tkmol[i].aT1, "X" ) ==0 && stricmp( tkmol[i].aT2, tAtom3 ) ==0 
+						   && stricmp( tkmol[i].aT3, tAtom2) == 0 && stricmp( tkmol[i].aT4, "X" ) ==0 ) )
+				   {
+					  if( fabs( tkmol[i].gamma - tGamma) < EPS && fabs( tkmol[i].n - tN ) < EPS )
+					  {
+					      tkmol[i].vn2 = tVn2;
+					      tkmol[i].listed = true;
+					  }
 				   }
 			    }
 
@@ -1366,6 +1583,7 @@ namespace Avogadro
 						  okmol[i].vn2 = tVn2;
 					      okmol[i].gamma = tGamma;
 						  okmol[i].n = tN;
+						  okmol[i].listed = true;
 					  }
 				  }
 			   }
@@ -1408,13 +1626,13 @@ namespace Avogadro
 	    }
 	   // end (read non-bonding block)
       
-	 } // end of while(1) (unfinite loop)
+	 } // end of while(1) (infinite loop)
 
 	      s.close(); // close a file stream
 
 		  ts << tr("*>>>>>>>   General AMBER FF (GAFF) written in CHARMM FF style  <<<<<<<\n");
 		  ts << tr("*>>>>>>>   for ") << molBaseName;
-		  ts << tr(" which generated by Avogadro                          <<<<<<<\n\n");
+		  ts << tr(" which generated by Avogadro.                         <<<<<<<\n\n");
 		  ts << "BONDS\n";
 		  ts << "!\n";
           ts << "!V(bond) = Kb(b - b0)**2\n";
@@ -1551,22 +1769,25 @@ namespace Avogadro
         ts << "!\n";
         ts << "!atom types             Kchi    n   delta\n";
 		ts << "!\n";
-		ts << "!Multipilicity and phase of torion are not yet considered\n";
-		ts << "!in the extraction of torsion parameters...\n";
-		ts << "!\n";
+		// ts << "!Multipilicity and phase of torion are not yet considered\n";
+		// ts << "!during the extraction of torsion parameters...\n";
+		// ts << "!\n";
 
 	   for( i = 0; i < tkmol.size(); i++ )
 	   {
-		  ts  << qSetRealNumberPrecision(5) << fixed << right
-			  <<  tkmol[i].aT1 << " "
-             <<  tkmol[i].aT2 << " "
-			 <<  tkmol[i].aT3 << " "
-             <<  tkmol[i].aT4 << "    "
-			 <<  tkmol[i].vn2 << " "
-			 <<  qSetRealNumberPrecision(0) 
-			 <<  tkmol[i].n << "  "
-			 <<  qSetRealNumberPrecision(5) << fixed << right
-			 <<  tkmol[i].gamma << endl;
+		   if( tkmol[i].listed )
+		   {
+		      ts  << qSetRealNumberPrecision(5) << fixed << right
+			      <<  tkmol[i].aT1 << " "
+                  <<  tkmol[i].aT2 << " "
+			      <<  tkmol[i].aT3 << " "
+                  <<  tkmol[i].aT4 << "    "
+			      <<  tkmol[i].vn2 << " "
+			      <<  qSetRealNumberPrecision(0) 
+			      <<  tkmol[i].n << "  "
+			      <<  qSetRealNumberPrecision(5) << fixed << right
+			      <<  tkmol[i].gamma << endl;
+		   }
 
    	     }
 
@@ -1579,16 +1800,20 @@ namespace Avogadro
         ts << "!psi0: degrees\n";
         ts << "!note that the second column of numbers (0) is ignored\n";
         ts << "!\n";
+
 	   for( i = 0; i < okmol.size(); i++ )
 	  {
-		ts   << qSetRealNumberPrecision(5) << fixed << right
-			<<  okmol[i].aT1 << " "
-             <<  okmol[i].aT2 << " "
-			 <<  okmol[i].aT3 << " "
-             <<  okmol[i].aT4 << "    "
-			 <<  okmol[i].vn2 << "   "
-			 << "0    "
-			 <<  okmol[i].gamma << endl;
+		  if( okmol[i].listed )
+		  {
+		    ts << qSetRealNumberPrecision(5) << fixed << right
+		    	<<  okmol[i].aT1 << " "
+               <<  okmol[i].aT2 << " "
+			   <<  okmol[i].aT3 << " "
+               <<  okmol[i].aT4 << "    "
+			   <<  okmol[i].vn2 << "   "
+			   << "0    "
+			   <<  okmol[i].gamma << endl;
+		  }
 
    	  }
 
