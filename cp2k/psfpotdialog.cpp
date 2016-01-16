@@ -680,7 +680,10 @@ namespace Avogadro
   {
      #define  COS20D   0.93969262078591
      #define  COS160D  -1.00000000000000 + COS20D
-     #define  PI       3.141592653589793
+
+     #ifndef M_PI
+        #define  M_PI       3.141592653589793
+     #endif
 
 	  std::pair<double,double> temp;
 
@@ -707,7 +710,7 @@ namespace Avogadro
 
 	 // cis
 	 // -20D < torsion angle < 20D and b-c is double bond
-	 if( cos( parent->GetTorsion( a, b, c, d ) *PI/180.0 ) > COS20D &&  matchesBondSMARTS( b, c, "*=*") ) 
+	 if( cos( parent->GetTorsion( a, b, c, d ) *M_PI/180.0 ) > COS20D &&  matchesBondSMARTS( b, c, "*=*") ) 
 	 {
 		 temp.first = 1.0;
 		 temp.second = 180.0;
@@ -715,7 +718,7 @@ namespace Avogadro
 	 }
 
 	 // trans
-	 else if( cos( parent->GetTorsion( a, b, c, d ) *PI/180.0 ) < COS160D &&  matchesBondSMARTS( b, c, "*=*") ) 
+	 else if( cos( parent->GetTorsion( a, b, c, d ) *M_PI/180.0 ) < COS160D &&  matchesBondSMARTS( b, c, "*=*") ) 
 	 {
 		 temp.first = 1.0;
 		 temp.second = 0.0;
@@ -723,7 +726,7 @@ namespace Avogadro
 	 }
 
 	 // eclipsed
-	 else if( cos( parent->GetTorsion( a, b, c, d ) *PI/180.0 ) > COS20D &&  matchesBondSMARTS( b, c, "*-*") ) 
+	 else if( cos( parent->GetTorsion( a, b, c, d ) *M_PI/180.0 ) > COS20D &&  matchesBondSMARTS( b, c, "*-*") ) 
 	 {
 		 temp.first = 3.0;
 		 temp.second = 180.0;
@@ -731,7 +734,7 @@ namespace Avogadro
 	 }
 
 	 // staggerd
-	 else if( cos( parent->GetTorsion( a, b, c, d ) *PI/180.0 ) < COS20D &&  matchesBondSMARTS( b, c, "*-*") ) 
+	 else if( cos( parent->GetTorsion( a, b, c, d ) *M_PI/180.0 ) < COS20D &&  matchesBondSMARTS( b, c, "*-*") ) 
 	 {
 		 temp.first = 3.0;
 		 temp.second = 0.0;

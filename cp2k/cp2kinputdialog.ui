@@ -6,905 +6,889 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>620</width>
-    <height>406</height>
+    <width>622</width>
+    <height>455</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>CP2K Input</string>
   </property>
-  <widget class="QPushButton" name="closeButton">
-   <property name="geometry">
-    <rect>
-     <x>530</x>
-     <y>370</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Close</string>
-   </property>
-  </widget>
-  <widget class="QTabWidget" name="cp2kinputTabs">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>591</width>
-     <height>171</height>
-    </rect>
-   </property>
-   <property name="toolTip">
-    <string/>
-   </property>
-   <property name="currentIndex">
-    <number>0</number>
-   </property>
-   <widget class="QWidget" name="basicsTab">
-    <attribute name="title">
-     <string>Basics</string>
-    </attribute>
-    <attribute name="toolTip">
-     <string>Basic Settings</string>
-    </attribute>
-    <widget class="QLineEdit" name="projectNameLine">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>20</y>
-       <width>451</width>
-       <height>21</height>
-      </rect>
-     </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="4">
+    <widget class="QTabWidget" name="cp2kinputTabs">
      <property name="toolTip">
-      <string>Enter your project name.</string>
+      <string/>
      </property>
-    </widget>
-    <widget class="QLabel" name="projectNameLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>20</y>
-       <width>81</width>
-       <height>16</height>
-      </rect>
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="text">
-      <string>Project Name:</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="runTypeCombo">
-     <property name="geometry">
-      <rect>
-       <x>100</x>
-       <y>50</y>
-       <width>141</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>Energy</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Energy and Force</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Molecular Dynamics</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Geometry Optimization</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Vibrational Analysis</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QLabel" name="runTypeLabel">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>50</y>
-       <width>50</width>
-       <height>12</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Run Type:</string>
-     </property>
-    </widget>
-    <widget class="QGroupBox" name="forceChoiceBox">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>80</y>
-       <width>361</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>Electronic calculation method</string>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="title">
-      <string>Force</string>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <property name="checkable">
-      <bool>false</bool>
-     </property>
-     <widget class="QRadioButton" name="mmRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>40</x>
-        <y>20</y>
-        <width>61</width>
-        <height>16</height>
-       </rect>
-      </property>
+     <widget class="QWidget" name="basicsTab">
+      <attribute name="title">
+       <string>Basics</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Basic Settings</string>
+      </attribute>
+      <widget class="QLineEdit" name="projectNameLine">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>20</y>
+         <width>451</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Enter your project name.</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="projectNameLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>81</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Project Name:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="runTypeCombo">
+       <property name="geometry">
+        <rect>
+         <x>100</x>
+         <y>50</y>
+         <width>141</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Energy</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Energy and Force</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Molecular Dynamics</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Geometry Optimization</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Vibrational Analysis</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="runTypeLabel">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>50</y>
+         <width>50</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Run Type:</string>
+       </property>
+      </widget>
+      <widget class="QGroupBox" name="forceChoiceBox">
+       <property name="geometry">
+        <rect>
+         <x>40</x>
+         <y>80</y>
+         <width>361</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Electronic calculation method</string>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="title">
+        <string>Force</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <widget class="QRadioButton" name="mmRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>20</y>
+          <width>61</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Moleular Mechanics (Classical)</string>
+        </property>
+        <property name="text">
+         <string>MM</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="qmRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>130</x>
+          <y>20</y>
+          <width>86</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="toolTip">
+         <string>Quantum Mechanics</string>
+        </property>
+        <property name="text">
+         <string>QM</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="qmmmRadioButton">
+        <property name="geometry">
+         <rect>
+          <x>220</x>
+          <y>20</y>
+          <width>86</width>
+          <height>16</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>QMMM</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="mmTab">
       <property name="toolTip">
-       <string>Moleular Mechanics (Classical)</string>
+       <string>Molcular Mechanics (Classical)</string>
       </property>
-      <property name="text">
+      <attribute name="title">
        <string>MM</string>
-      </property>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Classical Molecular Mechanics Calculation Settings</string>
+      </attribute>
+      <widget class="QComboBox" name="ewaldTypeCombo">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>40</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>no Ewald</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Ewald</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PME</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>SPME</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="ewaldTypeLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>40</y>
+         <width>81</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>The type of Ewald electrostatic summation.</string>
+       </property>
+       <property name="text">
+        <string>Ewald Type:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="emaxSplineLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>20</y>
+         <width>50</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>The maximum value of the potential up to which splines will be constructed </string>
+       </property>
+       <property name="text">
+        <string>EMAX:</string>
+       </property>
+      </widget>
+      <widget class="QDoubleSpinBox" name="emaxSplineDoubleSpin">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>10</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>The maximum value of the potential up to which splines will be constructed </string>
+       </property>
+      </widget>
      </widget>
-     <widget class="QRadioButton" name="qmRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>130</x>
-        <y>20</y>
-        <width>86</width>
-        <height>16</height>
-       </rect>
-      </property>
+     <widget class="QWidget" name="qmTab">
       <property name="toolTip">
-       <string>Quantum Mechanics</string>
+       <string>Quantum Mehanics</string>
       </property>
-      <property name="text">
+      <attribute name="title">
        <string>QM</string>
-      </property>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Quantum Mechanics Calculation Settings</string>
+      </attribute>
+      <widget class="QComboBox" name="qmMethodCombo">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>10</y>
+         <width>121</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>DFT</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>DFTB</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>SE</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="qmMethodLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>12</y>
+         <width>50</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Method:</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="chargeLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>50</width>
+         <height>12</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Charge:</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="chargeSpin">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>50</y>
+         <width>41</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="multiplicityLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>61</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Multiplicity:</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="multiplicitySpin">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>80</y>
+         <width>42</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="maxSCFSpin">
+       <property name="geometry">
+        <rect>
+         <x>220</x>
+         <y>50</y>
+         <width>42</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="maxSCFLabel">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>50</y>
+         <width>50</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Max SCF:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="scfGuessCombo">
+       <property name="geometry">
+        <rect>
+         <x>310</x>
+         <y>10</y>
+         <width>141</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>ATOMIC</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>RESTART</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>RANDOM</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>CORE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>DENSITIES</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>HISTORY_RESTART</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MOPAC</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>SPARSE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>NONE</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="scfGuessLabel">
+       <property name="geometry">
+        <rect>
+         <x>240</x>
+         <y>10</y>
+         <width>61</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>SCF Guess:</string>
+       </property>
+      </widget>
      </widget>
-     <widget class="QRadioButton" name="qmmmRadioButton">
-      <property name="geometry">
-       <rect>
-        <x>220</x>
-        <y>20</y>
-        <width>86</width>
-        <height>16</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>QMMM</string>
-      </property>
-     </widget>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="mmTab">
-    <property name="toolTip">
-     <string>Molcular Mechanics (Classical)</string>
-    </property>
-    <attribute name="title">
-     <string>MM</string>
-    </attribute>
-    <attribute name="toolTip">
-     <string>Classical Molecular Mechanics Calculation Settings</string>
-    </attribute>
-    <widget class="QComboBox" name="ewaldTypeCombo">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>40</y>
-       <width>91</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>no Ewald</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Ewald</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PME</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>SPME</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QLabel" name="ewaldTypeLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>40</y>
-       <width>81</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>The type of Ewald electrostatic summation.</string>
-     </property>
-     <property name="text">
-      <string>Ewald Type:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="emaxSplineLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>20</y>
-       <width>50</width>
-       <height>12</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>The maximum value of the potential up to which splines will be constructed </string>
-     </property>
-     <property name="text">
-      <string>EMAX:</string>
-     </property>
-    </widget>
-    <widget class="QDoubleSpinBox" name="emaxSplineDoubleSpin">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>10</y>
-       <width>91</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>The maximum value of the potential up to which splines will be constructed </string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="qmTab">
-    <property name="toolTip">
-     <string>Quantum Mehanics</string>
-    </property>
-    <attribute name="title">
-     <string>QM</string>
-    </attribute>
-    <attribute name="toolTip">
-     <string>Quantum Mechanics Calculation Settings</string>
-    </attribute>
-    <widget class="QComboBox" name="qmMethodCombo">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>10</y>
-       <width>121</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
+     <widget class="QWidget" name="dftTab">
+      <attribute name="title">
        <string>DFT</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Density Functional Calculation Settings</string>
+      </attribute>
+      <widget class="QLabel" name="basisSetLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>10</y>
+         <width>50</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Basis:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="basisSetCombo">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>10</y>
+         <width>121</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>SZV-GTH</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>DZV-GTH</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>DZVP-GTH</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>TZVP-GTH</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>TZV2P-GTH</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="functionalLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>61</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Functional:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="functionalCombo">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>40</y>
+         <width>121</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>The name of the pseudopotential and the xc functional</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>BLYP</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>BP</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>HTH120</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PADE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PBE</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QLabel" name="nMGridLabel">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>10</y>
+         <width>71</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>The number of multigrids</string>
+       </property>
+       <property name="text">
+        <string>#MultiGrid:</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="nMGridSpin">
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>10</y>
+         <width>61</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="cutOffLabel">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>40</y>
+         <width>61</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>The cutoff of the finest grid level</string>
+       </property>
+       <property name="text">
+        <string>CutOff(Ry):</string>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="cutOffSpin">
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>40</y>
+         <width>61</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>The cutoff of the finest grid level</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="dftbTab">
+      <property name="toolTip">
+       <string>Density Functional Tight Binding Electronic Calculation Settings</string>
       </property>
-     </item>
-     <item>
-      <property name="text">
+      <attribute name="title">
        <string>DFTB</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
+      </attribute>
+      <attribute name="toolTip">
+       <string>Density Functional Tight Binding Method Calculation Settings</string>
+      </attribute>
+      <widget class="QLabel" name="sccTypeLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>121</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Charge Denity Type</string>
+       </property>
+       <property name="text">
+        <string>Charge Density Type:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="sccTypeCombo">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>10</y>
+         <width>181</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Self-Consistent (scc)</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Non Self-Consistent (non-scc)</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="QCheckBox" name="dispersionCheck">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>50</y>
+         <width>161</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Use Dispersion Correction</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="seTab">
+      <attribute name="title">
        <string>SE</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QLabel" name="qmMethodLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>12</y>
-       <width>50</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Method:</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="chargeLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>50</y>
-       <width>50</width>
-       <height>12</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Charge:</string>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="chargeSpin">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>50</y>
-       <width>41</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="multiplicityLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>80</y>
-       <width>61</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Multiplicity:</string>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="multiplicitySpin">
-     <property name="geometry">
-      <rect>
-       <x>90</x>
-       <y>80</y>
-       <width>42</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="maxSCFSpin">
-     <property name="geometry">
-      <rect>
-       <x>220</x>
-       <y>50</y>
-       <width>42</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="maxSCFLabel">
-     <property name="geometry">
-      <rect>
-       <x>150</x>
-       <y>50</y>
-       <width>50</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Max SCF:</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="scfGuessCombo">
-     <property name="geometry">
-      <rect>
-       <x>310</x>
-       <y>10</y>
-       <width>141</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>ATOMIC</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>RESTART</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>RANDOM</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>CORE</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>DENSITIES</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>HISTORY_RESTART</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>MOPAC</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>SPARSE</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>NONE</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QLabel" name="scfGuessLabel">
-     <property name="geometry">
-      <rect>
-       <x>240</x>
-       <y>10</y>
-       <width>61</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>SCF Guess:</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="dftTab">
-    <attribute name="title">
-     <string>DFT</string>
-    </attribute>
-    <attribute name="toolTip">
-     <string>Density Functional Calculation Settings</string>
-    </attribute>
-    <widget class="QLabel" name="basisSetLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>10</y>
-       <width>50</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Basis:</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="basisSetCombo">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>10</y>
-       <width>121</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>SZV-GTH</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>DZV-GTH</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>DZVP-GTH</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>TZVP-GTH</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>TZV2P-GTH</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QLabel" name="functionalLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>61</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Functional:</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="functionalCombo">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>40</y>
-       <width>121</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>The name of the pseudopotential and the xc functional</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>BLYP</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>BP</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>HTH120</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PADE</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PBE</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QLabel" name="nMGridLabel">
-     <property name="geometry">
-      <rect>
-       <x>230</x>
-       <y>10</y>
-       <width>71</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>The number of multigrids</string>
-     </property>
-     <property name="text">
-      <string>#MultiGrid:</string>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="nMGridSpin">
-     <property name="geometry">
-      <rect>
-       <x>300</x>
-       <y>10</y>
-       <width>61</width>
-       <height>22</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="cutOffLabel">
-     <property name="geometry">
-      <rect>
-       <x>230</x>
-       <y>40</y>
-       <width>61</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>The cutoff of the finest grid level</string>
-     </property>
-     <property name="text">
-      <string>CutOff(Ry):</string>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="cutOffSpin">
-     <property name="geometry">
-      <rect>
-       <x>300</x>
-       <y>40</y>
-       <width>61</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>The cutoff of the finest grid level</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="dftbTab">
-    <property name="toolTip">
-     <string>Density Functional Tight Binding Electronic Calculation Settings</string>
-    </property>
-    <attribute name="title">
-     <string>DFTB</string>
-    </attribute>
-    <attribute name="toolTip">
-     <string>Density Functional Tight Binding Method Calculation Settings</string>
-    </attribute>
-    <widget class="QLabel" name="sccTypeLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>121</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>Charge Denity Type</string>
-     </property>
-     <property name="text">
-      <string>Charge Density Type:</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="sccTypeCombo">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>10</y>
-       <width>181</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <item>
-      <property name="text">
-       <string>Self-Consistent (scc)</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Non Self-Consistent (non-scc)</string>
-      </property>
-     </item>
-    </widget>
-    <widget class="QCheckBox" name="dispersionCheck">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>50</y>
-       <width>161</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Use Dispersion Correction</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="seTab">
-    <attribute name="title">
-     <string>SE</string>
-    </attribute>
-    <attribute name="toolTip">
-     <string>Semiemperical Method Calculation Settings</string>
-    </attribute>
-    <widget class="QLabel" name="seMethodLabel">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>12</y>
-       <width>50</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Method:</string>
-     </property>
-    </widget>
-    <widget class="QComboBox" name="seMethodCombo">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>10</y>
-       <width>101</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>Semiempirical electronic calculation method</string>
-     </property>
-     <item>
-      <property name="text">
-       <string>PM6</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>MNDO</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>MNDOD</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>AM1</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PM3</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PDG</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>RM1</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>PNNL</string>
-      </property>
-     </item>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="qmmmTab">
-    <attribute name="title">
-     <string>QMMM</string>
-    </attribute>
-    <attribute name="toolTip">
-     <string>Quntum Mechanics/Molecular Mechanics Calculation Settings</string>
-    </attribute>
-    <widget class="QLabel" name="qmmmExplanationLabel">
-     <property name="geometry">
-      <rect>
-       <x>50</x>
-       <y>10</y>
-       <width>261</width>
-       <height>51</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Select QM Atoms with Selection Tool (F11)  !
+      </attribute>
+      <attribute name="toolTip">
+       <string>Semiemperical Method Calculation Settings</string>
+      </attribute>
+      <widget class="QLabel" name="seMethodLabel">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>12</y>
+         <width>50</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Method:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="seMethodCombo">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>10</y>
+         <width>101</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="toolTip">
+        <string>Semiempirical electronic calculation method</string>
+       </property>
+       <item>
+        <property name="text">
+         <string>PM6</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MNDO</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>MNDOD</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>AM1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PM3</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PDG</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>RM1</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>PNNL</string>
+        </property>
+       </item>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="qmmmTab">
+      <attribute name="title">
+       <string>QMMM</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Quntum Mechanics/Molecular Mechanics Calculation Settings</string>
+      </attribute>
+      <widget class="QLabel" name="qmmmExplanationLabel">
+       <property name="geometry">
+        <rect>
+         <x>50</x>
+         <y>10</y>
+         <width>261</width>
+         <height>51</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Select QM Atoms with Selection Tool (F11)  !
 Currently initial ALPHA is same for all link types.
 Please edit your generated input file.</string>
-     </property>
+       </property>
+      </widget>
+      <widget class="QLabel" name="qmmmElectroCoupleLabel">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>161</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>QM-MM electrostatic coupling:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="qmmmElectroCoupleCombo">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>60</y>
+         <width>181</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>Mechanical</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Coulomb</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Fast Gaussian Expansion</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>S-wave Fast Gaussian</string>
+        </property>
+       </item>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="mdTab">
+      <property name="toolTip">
+       <string>Molecular Dynamics Settings</string>
+      </property>
+      <attribute name="title">
+       <string>MD</string>
+      </attribute>
+      <widget class="QLabel" name="ensembleLabel">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>5</y>
+         <width>61</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Ensemble:</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="ensembleCombo">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>10</y>
+         <width>91</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <item>
+        <property name="text">
+         <string>NVE</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>NVT</string>
+        </property>
+       </item>
+      </widget>
+     </widget>
     </widget>
-    <widget class="QLabel" name="qmmmElectroCoupleLabel">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>60</y>
-       <width>161</width>
-       <height>21</height>
-      </rect>
-     </property>
+   </item>
+   <item row="1" column="0" colspan="4">
+    <widget class="QTextEdit" name="previewText"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="resetButton">
      <property name="text">
-      <string>QM-MM electrostatic coupling:</string>
+      <string>Reset</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="qmmmElectroCoupleCombo">
-     <property name="geometry">
-      <rect>
-       <x>170</x>
-       <y>60</y>
-       <width>181</width>
-       <height>22</height>
-      </rect>
+   </item>
+   <item row="2" column="1">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
-     <item>
-      <property name="text">
-       <string>Mechanical</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Coulomb</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Fast Gaussian Expansion</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>S-wave Fast Gaussian</string>
-      </property>
-     </item>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="mdTab">
-    <property name="toolTip">
-     <string>Molecular Dynamics Settings</string>
-    </property>
-    <attribute name="title">
-     <string>MD</string>
-    </attribute>
-    <widget class="QLabel" name="ensembleLabel">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>5</y>
-       <width>61</width>
-       <height>31</height>
-      </rect>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>358</width>
+       <height>20</height>
+      </size>
      </property>
+    </spacer>
+   </item>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="generateButton">
      <property name="text">
-      <string>Ensemble:</string>
+      <string>Generate...</string>
      </property>
     </widget>
-    <widget class="QComboBox" name="ensembleCombo">
-     <property name="geometry">
-      <rect>
-       <x>80</x>
-       <y>10</y>
-       <width>91</width>
-       <height>22</height>
-      </rect>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="closeButton">
+     <property name="text">
+      <string>Close</string>
      </property>
-     <item>
-      <property name="text">
-       <string>NVE</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>NVT</string>
-      </property>
-     </item>
     </widget>
-   </widget>
-  </widget>
-  <widget class="QTextEdit" name="previewText">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>190</y>
-     <width>591</width>
-     <height>171</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="generateButton">
-   <property name="geometry">
-    <rect>
-     <x>440</x>
-     <y>370</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Generate...</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="resetButton">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>370</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Reset</string>
-   </property>
-  </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>
