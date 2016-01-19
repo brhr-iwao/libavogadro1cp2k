@@ -628,7 +628,7 @@
         </rect>
        </property>
        <property name="toolTip">
-        <string>Charge Denity Type</string>
+        <string>Charge Density Type</string>
        </property>
        <property name="text">
         <string>Charge Density Type:</string>
@@ -642,6 +642,9 @@
          <width>181</width>
          <height>22</height>
         </rect>
+       </property>
+       <property name="toolTip">
+        <string>Charge Density Type</string>
        </property>
        <item>
         <property name="text">
@@ -814,6 +817,9 @@ Please edit your generated input file.</string>
       </property>
       <attribute name="title">
        <string>MD</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Molecular Dynamics Settings</string>
       </attribute>
       <widget class="QLabel" name="ensembleLabel">
        <property name="geometry">
