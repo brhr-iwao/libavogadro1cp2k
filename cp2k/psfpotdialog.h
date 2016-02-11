@@ -22,8 +22,15 @@
 #ifndef PSFPOTDIALOG_H
 #define PSFPOTDIALOG_H
 
+#include <openbabel/babelconfig.h>
+#include <openbabel/base.h>
+#include <openbabel/mol.h>
+#include <openbabel/forcefield.h>
+#include <openbabel/residue.h>
+#include <openbabel/forcefields/forcefieldgaff.h>
 
 #include <avogadro/molecule.h>
+
 
 #include <QtCore/QSettings>
 #include <QtGui/QDialog>
@@ -33,6 +40,7 @@
 
 #define EPS 0.01 // for double-double comparison
 
+using namespace std;
 using namespace OpenBabel;
 
 namespace Avogadro
@@ -54,12 +62,6 @@ namespace Avogadro
 	char  aT3[3]; // atom Type 3
 	double  Kth;  // constant of bending motion (kcal/(mol radian^2))
 	double  theq; // equibrium angle (degree)
-	unsigned int aN1; // atomic number of 1.
-	unsigned int aN2;
-	unsigned int aN3;
-	double  r1c; // currnet bond length (A) between 1-2 atoms. 
-	double  r2c; // currnet bond length (A) between 2-3 atoms. 
-    double  thc; // current angle (degree). 
    };
 
    struct torKind
@@ -72,7 +74,6 @@ namespace Avogadro
 	double   vn2;   // equals to Kchi for charmm pot (kcal/mol)
 	double   gamma; // equals to delta for charmm pot (degree) (phase)
     double  n;      // the periodicity of torsion (multiplicity)
-	bool  listed;   // an internal flag (this data is from gaff.dat or not?)
    };
 
    struct oopKind
@@ -84,7 +85,6 @@ namespace Avogadro
 	double   vn2;   // equals to Kchi for charmm pot (kcal/mol)
 	double   gamma; // equals to delta for charmm pot (degree)
     double  n;      // the periodicity of torsion
-	bool  listed;   // an internal flag (this data is from gaff.dat or not?)
    };
 
    struct nbKind
@@ -92,7 +92,140 @@ namespace Avogadro
 	char aT[3];
 	double  R;
 	double eps;
-   };
+  };
+
+  
+   // global variables to be stored with FF parameters
+	static vector<bondKind>  bkmol;
+	static vector<angleKind> akmol;
+	static vector<torKind>   tkmol;
+    static vector<oopKind>   okmol;
+    static vector<nbKind>    nkmol;
+   
+
+  class ffpGaff : public OBForceFieldGaff
+  {
+	   public:
+      
+        bool SetupPointers()
+		{
+			//if (!ParseParamFile()) return false;
+
+			   if( &( _bondcalculations ) == NULL) return false;
+
+			   bkmol.clear();
+
+			   vector<OBFFBondCalculationGaff>::iterator itb;
+
+			   for (itb = _bondcalculations.begin(); itb != _bondcalculations.end(); ++itb) 
+			   {
+				   bondKind tempBk;
+
+				   strcpy( tempBk.aT1, (*itb).a->GetType() );
+				   strcpy( tempBk.aT2, (*itb).b->GetType() );
+				   tempBk.Kb = (*itb).kr / KCAL_TO_KJ ;
+				   tempBk.req = (*itb).r0;
+
+				   bkmol.push_back( tempBk );
+
+			   }
+
+
+			   if( &( _anglecalculations ) == NULL ) return false;
+
+			   akmol.clear();
+
+			   vector<OBFFAngleCalculationGaff>::iterator ita;
+
+			   for (ita = _anglecalculations.begin(); ita != _anglecalculations.end(); ++ita) 
+			   {
+				   angleKind tempAk;
+
+				   strcpy( tempAk.aT1, (*ita).a->GetType() );
+				   strcpy( tempAk.aT2, (*ita).b->GetType() );
+				   strcpy( tempAk.aT3, (*ita).c->GetType() );
+				   tempAk.Kth = (*ita).kth / KCAL_TO_KJ;
+				   tempAk.theq = (*ita).theta0;
+
+				   akmol.push_back( tempAk );
+			   }
+
+               if( &( _torsioncalculations ) == NULL ) return false;
+
+			   tkmol.clear();
+
+			   vector<OBFFTorsionCalculationGaff>::iterator itt;
+
+			   for (itt = _torsioncalculations.begin(); itt != _torsioncalculations.end(); ++itt)
+			   {
+				   torKind tempTk;
+
+				   strcpy( tempTk.aT1, (*itt).a->GetType() );
+				   strcpy( tempTk.aT2, (*itt).b->GetType() );
+				   strcpy( tempTk.aT3, (*itt).c->GetType() );
+				   strcpy( tempTk.aT4, (*itt).d->GetType() );
+				   tempTk.m = 0;
+				   tempTk.vn2 = (*itt).vn_half / KCAL_TO_KJ;
+				   tempTk.gamma = (*itt).gamma;
+				   tempTk.n = (*itt).n;
+
+				   tkmol.push_back( tempTk );
+			   }
+
+
+			   if( &( _oopcalculations ) == NULL ) return false;
+
+			   okmol.clear();
+
+			   vector<OBFFOOPCalculationGaff>::iterator ito;
+
+			   for (ito = _oopcalculations.begin(); ito != _oopcalculations.end(); ++ito) 
+			   {
+				   oopKind tempOk;
+
+				   strcpy( tempOk.aT1, (*ito).a->GetType() );
+				   strcpy( tempOk.aT2, (*ito).b->GetType() );
+				   strcpy( tempOk.aT3, (*ito).c->GetType() );
+				   strcpy( tempOk.aT4, (*ito).d->GetType() );
+				   tempOk.vn2 = (*ito).vn_half / KCAL_TO_KJ;
+				   tempOk.gamma = (*ito).gamma;
+				   tempOk.n = (*ito).n;
+
+				   okmol.push_back( tempOk );
+			   }
+
+			   if( &( _ffvdwparams ) == NULL ) return false;
+
+			   nkmol.clear();
+
+			   for (int i = 0; i < _ffvdwparams.size() ; i++ )
+			   {
+				   nbKind tempNk;
+
+				   strcpy( tempNk.aT, _ffvdwparams[i]._a.c_str() );
+
+				  FOR_ATOMS_OF_MOL( a, _mol )
+			      {
+					 char* aType = a->GetType();
+
+					 if( aType != NULL && strcmp( aType, tempNk.aT ) == 0)
+					  {
+						  tempNk.R = _ffvdwparams[i]._dpar[0];
+				          tempNk.eps = _ffvdwparams[i]._dpar[1];
+
+						  nkmol.push_back( tempNk );
+					  }
+			      }
+		  
+			   }
+
+			   return true;
+
+		    }
+
+
+  }; 
+  // end of class ffpGaff definition
 
   class Molecule;
   class PsfPotDialog : public QDialog
@@ -107,16 +240,14 @@ namespace Avogadro
 	 void readSettings(QSettings&);
      void writeSettings(QSettings&) const;
 
-	 bool matchesBondSMARTS( OBAtom*, OBAtom*, const char*);
+	 QString psfGaff();
+	 QString potGaff();
 
     private:
       Ui::PsfPotDialog ui;
 
 	  QString psfPreviewPane();
 	  QString potPreviewPane();
-
-	 QString psfGaff();
-	 QString potGaff();
 
 	 static int chrs2int( const char* chrs );
 
@@ -130,12 +261,6 @@ namespace Avogadro
 	 static bool oopTypeEqual( const oopKind& left, const oopKind& right );
 	 static bool nbTypeComp( const nbKind& left, const nbKind& right );
 	 static bool nbTypeEqual( const nbKind& left, const nbKind& right );
-
-	 void acquireWholeAngles( OBMol mol, std::vector<angleKind>* ak );
-	 double gaffAngleC( unsigned int atomicNum );
-	 double gaffAngleZ( unsigned int atomicNum );
-
-	 std::pair<double, double> perceiveMultiPhase( OBAtom*, OBAtom*, OBAtom*, OBAtom* );
 
 	 bool Updated;
 
