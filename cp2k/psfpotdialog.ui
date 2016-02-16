@@ -30,6 +30,11 @@
          <string>GAFF</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>UFF</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>

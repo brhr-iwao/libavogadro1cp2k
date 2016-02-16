@@ -131,7 +131,7 @@ namespace Avogadro
 
   Cp2kInputDialog::~Cp2kInputDialog()
   {
-	  // the following codes apparently does not work...
+	  // the following code apparently does not work...
 	  QSettings settings;
       writeSettings(settings);
   }
