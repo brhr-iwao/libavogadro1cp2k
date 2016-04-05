@@ -37,6 +37,7 @@ or [Compiling on Windows with MSVC 2010](http://avogadro.cc/wiki/Compiling_on_Wi
 ### Usage
 Load the molecule you want to work with on Avogadro and then select "Psf/Pot..." or "CP2K > Generate Input..." in "Extensions" menu.
 This opens a dialog where correspondent parameters can be configured.
+
 To Visualize a CP2K calculation output, select "CP2K > Analyze Output..." in "Extensions" menu and open a "Analyze CP2K output "dialog. 
 Select proper file type via the "Data Type" combo box and load a CP2K output file with the "Load a file..." button.
 
