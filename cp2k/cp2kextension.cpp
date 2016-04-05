@@ -1,5 +1,5 @@
 /**********************************************************************
-  Cp2kInputExtension - CP2k Input Extension
+  Cp2kExtension - CP2k Extension
 
   Copyright (C) Aoyama Iwao
 
@@ -20,11 +20,22 @@
  ***********************************************************************/
 
 #include "cp2kinputdialog.h"
+#include "cp2koutputdialog.h"
 #include "psfpotdialog.h"
-#include "cp2kinputextension.h"
+#include "Cp2kExtension.h"
 
 #include <QAction>
 #include <QDebug>
+#include <QMessageBox> // To use QMessageBox for debug
+#include <QDockWidget>
+
+// Forward declaration of Avogadro::Molecule
+/*
+namespace Avogadro {
+  class Molecule;
+  class VibrationWidget;
+}
+*/
 
 using namespace std;
 
@@ -32,21 +43,21 @@ namespace Avogadro
 {
 
   // this is a trick to identify what action we are taking
-  enum Cp2kInputExtensionIndex
+  enum Cp2kExtensionIndex
   {
     psfpot = 0,
-    cp2kinput
+    cp2kinput,
+	cp2koutput
   };
 
-  Cp2kInputExtension::Cp2kInputExtension( QObject *parent ) : Extension( parent ) 
+  Cp2kExtension::Cp2kExtension( QObject *parent ) : Extension( parent ) 
   {
     QAction* action;
 
-	/*
 	action = new QAction( this );
 	action->setSeparator( true );
 	m_actions.append( action );
-	*/
+	
 
 	action = new QAction( this );
     action->setText( tr("&Psf/Pot..." ));
@@ -54,72 +65,89 @@ namespace Avogadro
     m_actions.append( action );
 
 	action = new QAction( this );
-    action->setText( tr("&CP2K Input..." ));
+    action->setText( tr("Generate &Input..." ));
 	action->setData( cp2kinput );
+    m_actions.append( action );
+
+    action = new QAction( this );
+    action->setText( tr("Analyze &Output..." ));
+	action->setData( cp2koutput );
     m_actions.append( action );
 
     action = new QAction( this );
 	action->setSeparator( true );
 	m_actions.append( action );
 
-	// label = new QLabel("Would crate psf/pot!"); // for debug
-
   }
 
-  Cp2kInputExtension::~Cp2kInputExtension()
+  Cp2kExtension::~Cp2kExtension()
   {
   }
 
-  QList<QAction *> Cp2kInputExtension::actions() const
+  QList<QAction *> Cp2kExtension::actions() const
   {
     return m_actions;
   }
 
   // allows us to set the intended menu path for each action
-  /*
-  QString Cp2kInputExtension::menuPath(QAction *action) const
+  QString Cp2kExtension::menuPath(QAction *action) const
   {
 
     int i = action->data().toInt();
 
     switch ( i )
 	{
+		/*
       case psfpot:
-        return tr("E&xtensions") + '>' + tr("&psf/pot...");
+        return tr("E&xtensions") +'>'+ tr("&psf/pot...");
         break;
       case cp2kinput:
-        return tr("E&xtensions") + '>' + tr("&cp2k input...");
+        return tr("E&xtensions") +'>'+tr("&CP2K") + '>' + tr("cp2k &input...");
         break;
+	  case cp2koutput:
+		return tr("E&xtensions") +'>'+tr("&CP2K") + '>' + tr("cp2k &output...");
+        break;
+		*/
+
+      case psfpot:
+        return tr("E&xtensions") ;
+        break;
+      case cp2kinput:
+	  case cp2koutput:
+        return tr("E&xtensions") +'>'+tr("&CP2K") ;
+        break;
+
     }
+
     return "";
 
   }
-  */
 
-  QDockWidget * Cp2kInputExtension::dockWidget()
+
+  QDockWidget * Cp2kExtension::dockWidget()
   {
     // if we need a dock widget we can set one here
     return 0;
   }
 
-  void Cp2kInputExtension::setMolecule(Molecule *molecule)
+  void Cp2kExtension::setMolecule(Molecule *molecule)
   {
     m_molecule = molecule;
   }
 
-  QUndoCommand* Cp2kInputExtension::performAction(QAction *action, GLWidget *)
+  QUndoCommand* Cp2kExtension::performAction(QAction *action, GLWidget *)
   {
 
     int i = action->data().toInt();
 
       PsfPotDialog* ppDialog = new PsfPotDialog(static_cast<QWidget*>(parent()));
- 	  Cp2kInputDialog* cDialog = new Cp2kInputDialog(static_cast<QWidget*>(parent()));
+ 	  Cp2kInputDialog* ciDialog = new Cp2kInputDialog(static_cast<QWidget*>(parent()));
+	  Cp2kOutputDialog* coDialog = new Cp2kOutputDialog(static_cast<QWidget*>(parent()));
 
     switch ( i )
 	{
       case  psfpot:
         // perform action
-
 
 		if (!ppDialog) 
 		{
@@ -137,19 +165,33 @@ namespace Avogadro
       case cp2kinput:
         // perform action
 
-
-		if (!cDialog) 
+		if (!ciDialog) 
 		{
-           qDebug() << "No cp2k dialog ! Something went wrong!";
+           qDebug() << "No cp2k input dialog ! Something went wrong!";
            return 0;
          }
 
 		if(m_molecule)
-             cDialog->setMolecule(m_molecule);
+             ciDialog->setMolecule(m_molecule);
 
-		cDialog->show();
+		ciDialog->show();
 
         break;
+
+	  case cp2koutput:
+
+		if (!coDialog) 
+		{
+           qDebug() << "No cp2k outout dialog ! Something went wrong!";
+           return 0;
+         }
+
+		if(m_molecule)
+             coDialog->setMolecule(m_molecule);
+
+		coDialog->show();
+
+		break;
     }
 
 
@@ -158,5 +200,5 @@ namespace Avogadro
 
 }
 
-Q_EXPORT_PLUGIN2(cp2kinputextension, Avogadro::Cp2kInputExtensionFactory)
+Q_EXPORT_PLUGIN2(Cp2kExtension, Avogadro::Cp2kExtensionFactory)
 

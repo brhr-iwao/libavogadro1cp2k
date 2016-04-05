@@ -1,5 +1,5 @@
 /**********************************************************************
-  Cp2kInputExtension - CP2k Input Extension
+  Cp2kExtension - CP2k Extension
 
   Copyright (C) Aoyama Iwao
 
@@ -19,8 +19,8 @@
   GNU General Public License for more details.
  ***********************************************************************/
 
-#ifndef CP2KINPUTEXTENSION_H
-#define CP2KINPUTEXTENSION_H
+#ifndef CP2KEXTENSION_H
+#define CP2KEXTENSION_H
 
 #include <avogadro/extension.h>
 #include <avogadro/primitive.h>
@@ -28,25 +28,24 @@
 
 namespace Avogadro {
 
-  class Cp2kInputExtension : public Extension
+  class Cp2kExtension : public Extension
   {
     Q_OBJECT
-      AVOGADRO_EXTENSION("Cp2k", tr("Cp2k input file extension"),
-                         tr("provides cp2k input deck and psf/pot files for FIST calculation"))
+      AVOGADRO_EXTENSION("Cp2k", tr("Cp2k extension"),
+                         tr("provides CHARMM style psf/pot files ganerator, Cp2k input generator and output reader "))
 
     public:
       // Constructor
-      Cp2kInputExtension(QObject *parent=0);
+      Cp2kExtension(QObject *parent=0);
 
       // Deconstructor
-      virtual ~Cp2kInputExtension();
+      virtual ~Cp2kExtension();
 
 	  // This tells Avogadro what actions to create
       virtual QList<QAction *> actions() const;
 
 	  // This returns a string that tells Avogadro where to put the menu entries
-	  // if branched menus (menuPath) are not necessary, this function will be unused.
-      // virtual QString menuPath(QAction *action) const;
+      virtual QString menuPath(QAction *action) const;
 
       virtual QDockWidget * dockWidget();
 
@@ -65,11 +64,11 @@ namespace Avogadro {
 
   };
 
-  class Cp2kInputExtensionFactory : public QObject, public PluginFactory
+  class Cp2kExtensionFactory : public QObject, public PluginFactory
   {
     Q_OBJECT
     Q_INTERFACES(Avogadro::PluginFactory)
-    AVOGADRO_EXTENSION_FACTORY(Cp2kInputExtension)
+    AVOGADRO_EXTENSION_FACTORY(Cp2kExtension)
   };
 
 } // end namespace Avogadro

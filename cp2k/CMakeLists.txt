@@ -5,7 +5,7 @@
 ######################################################################
 
 # Project name - plugin name or something meaningful
-project(Cp2kInputExtension)
+project(Cp2kExtension)
 
 # Minimum version of CMake that can be used
 cmake_minimum_required(VERSION 2.6)
@@ -21,16 +21,19 @@ include_directories(
 
 link_directories(${OPENBABEL2_LIBRARY_DIRS})
 
-set (cp2kinputextension_SRCS
-                cp2kinputextension.cpp 
+set (cp2kextension_SRCS
+                cp2kextension.cpp 
                 cp2kinputdialog.cpp
+                cp2koutputdialog.cpp
                 psfpotdialog.cpp
                 )
-set (cp2kinputextension_UIS
+set (cp2kextension_UIS
                     cp2kinputdialog.ui
+                    cp2koutputdialog.ui
+                    spectraplotdialog.ui
                     psfpotdialog.ui
                      )
 
-avogadro_plugin(cp2kinputextension 
-                  "${cp2kinputextension_SRCS}" 
-                  "${cp2kinputextension_UIS}"   )
+avogadro_plugin(cp2kextension 
+                  "${cp2kextension_SRCS}" 
+                  "${cp2kextension_UIS}"   )

@@ -1461,7 +1461,6 @@ namespace Avogadro
 		  ts << endl; // insert empty line
 
 		 ts << "ANGLES\n";
-		 ts << "!This is a harmonic approximation.";
 		 ts << "!\n";
 		 ts << "!V(angle) = Ktheta(Theta - Theta0)**2\n";
 		 ts << "!\n";
