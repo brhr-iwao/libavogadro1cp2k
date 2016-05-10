@@ -514,9 +514,9 @@ namespace Avogadro
         if (!m_molecule) return;
 		if ( vI.empty() ) return;
 
-		PlotObject *data = new PlotObject (Qt::red,  // the color for the plotting object
-			                               PlotObject::Bars, // Plotting object. Points, Lines or Bars
-										   2);
+		PlotObject *data = new PlotObject(Qt::red,  // the color for the plotting object
+			                              PlotObject::Lines, // Plotting object. Points, Lines or Bars
+			                                2); // the size to use for plotted points, in pixels 
 
 	    double curX = vF.at(0);
 		double minX = vF.at(0);
@@ -526,6 +526,7 @@ namespace Avogadro
 		double minY = vI.at(0);
 		double maxY = vI.at(0);
 
+		// Find plotting boundaries
 		for(int i = 0; i< vF.size() ; i++)
 		{
 			curX = vF.at(i);
@@ -535,9 +536,26 @@ namespace Avogadro
             if (curX > maxX) maxX = curX;
 			if (curY < minY) minY = curY;
             if (curY > maxY) maxY = curY;
+		}
 
-            data->addPoint(curX, curY, QString::number(curX), 1.0);
-			// data->addPoint( curX, curY, 0, 1.0);
+		curX = minX;
+		double linewidth = 100.0;
+
+		// calculate spectrum with specified bandwidth
+		while (1)
+		{
+			curY = 0.0;
+
+			for (int i = 0; i< vF.size(); i++)
+			{
+				curY += vI.at(i) * exp( -(1.0/linewidth) * (curX - vF.at(i)) * (curX - vF.at(i)));
+			}
+
+			data->addPoint(curX, -(curY), 0, 0.0); // set curY negative to turn the spectrum downward
+
+			curX += 1.0; // increment a plot step
+			if (curX > maxX) break;
+
 		}
 
 
@@ -546,23 +564,15 @@ namespace Avogadro
         double extX = spreadX * 0.05;
 		double extY = spreadY * 0.05;
 
-
-       ui.plot->setDefaultLimits(minX - extX,
-                              maxX + extX,
-                              minY - extY,
-                              maxY + extY);
-
-        /*
-	     ui.plot->setDefaultLimits(500,
-                              3500,
-                              0.0,
-                              0.01);
-			*/
+	   ui.plot->setDefaultLimits(minX - extX,
+		                        maxX + extX,
+		                        -( maxY + extY),
+		                         -( minY - extY) );
 
 	    ui.plot->setAntialiasing(true);
         ui.plot->setMouseTracking(true);
         ui.plot->axis(PlotWidget::BottomAxis)->setLabel(tr("Wavenumber(cm-1)"));
-        ui.plot->axis(PlotWidget::LeftAxis)->setLabel(tr("Intensity (km/mol)"));
+        ui.plot->axis(PlotWidget::LeftAxis)->setLabel(tr("-Intensity (km/mol)"));
 		ui.plot->addPlotObject(data);
 	}
 
