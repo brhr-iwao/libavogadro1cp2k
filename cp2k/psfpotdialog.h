@@ -29,6 +29,8 @@
 #include <openbabel/residue.h>
 #include <openbabel/forcefields/forcefieldgaff.h>
 #include <openbabel/forcefields/forcefielduff.h>
+// #include <openbabel/forcefields/forcefieldmmff94.h>
+#include <openbabel/forcefields/forcefieldghemical.h>
 
 #include <avogadro/molecule.h>
 
@@ -224,9 +226,9 @@ namespace Avogadro
 
 
   }; 
-  // end of class ffpGaff definition
+  // end ffpGaff class definition
 
-  class ffpUff : OBForceFieldUFF
+  class ffpUff : public OBForceFieldUFF
   {
 	  public:
       
@@ -373,7 +375,117 @@ namespace Avogadro
 		}
 
   };
-  // end of class ffpUff definition
+  // end ffpUff class definition
+
+  class ffpGhemical : public OBForceFieldGhemical
+  {
+	  public:
+      
+        bool SetupPointers()
+		{
+			// bond
+			if( &( _bondcalculations ) == NULL) return false;
+
+			 bkmol.clear();
+
+			 vector<OBFFBondCalculationGhemical>::iterator itb;
+
+			 for (itb = _bondcalculations.begin(); itb != _bondcalculations.end(); ++itb) 
+			 {
+				   bondKind tempBk;
+
+				   strcpy( tempBk.aT1, (*itb).a->GetType() );
+				   strcpy( tempBk.aT2, (*itb).b->GetType() );
+				   tempBk.Kb = (*itb).kb / KCAL_TO_KJ ;
+				   tempBk.req = (*itb).r0;
+
+				   bkmol.push_back( tempBk );
+			 }
+
+			 // angle
+			 if( &( _anglecalculations ) == NULL ) return false;
+
+			 akmol.clear();
+
+			 vector<OBFFAngleCalculationGhemical>::iterator ita;
+
+			 for (ita = _anglecalculations.begin(); ita != _anglecalculations.end(); ++ita ) 
+			 {
+				 angleKind tempAk;
+
+				 strcpy( tempAk.aT1, (*ita).a->GetType() );
+				 strcpy( tempAk.aT2, (*ita).b->GetType() );
+				 strcpy( tempAk.aT3, (*ita).c->GetType() );
+				 tempAk.Kth = (*ita).ka / KCAL_TO_KJ;
+				 tempAk.theq = (*ita).theta0;
+
+				 akmol.push_back( tempAk );
+			 }
+
+			  // torsion
+               if( &( _torsioncalculations ) == NULL ) return false;
+
+			   tkmol.clear();
+
+			   vector<OBFFTorsionCalculationGhemical>::iterator itt;
+
+			   for (itt = _torsioncalculations.begin(); itt != _torsioncalculations.end(); ++itt)
+			   {
+				   torKind tempTk;
+
+				   strcpy( tempTk.aT1, (*itt).a->GetType() );
+				   strcpy( tempTk.aT2, (*itt).b->GetType() );
+				   strcpy( tempTk.aT3, (*itt).c->GetType() );
+				   strcpy( tempTk.aT4, (*itt).d->GetType() );
+
+				   tempTk.m = 0;
+
+				   if( (*itt).n == 2.0 )
+					   tempTk.vn2 = (-1.0) * (*itt).V * (*itt).s / KCAL_TO_KJ;
+
+				   else
+                       tempTk.vn2 = (*itt).V * (*itt).s / KCAL_TO_KJ;
+
+				   tempTk.gamma = 0.0;
+				   tempTk.n = (*itt).n;
+
+				   tkmol.push_back( tempTk );
+			   }
+
+			   // out-of plane terms are not defined...
+
+			   // van der waals
+			   if( &( _ffvdwparams ) == NULL ) return false;
+
+			   nkmol.clear();
+
+			   for (int i = 0; i < _ffvdwparams.size() ; i++ )
+			   {
+				   nbKind tempNk;
+
+				   strcpy( tempNk.aT, _ffvdwparams[i]._a.c_str() );
+
+				  FOR_ATOMS_OF_MOL( a, _mol )
+			      {
+					 char* aType = a->GetType();
+
+					 if( aType != NULL && strcmp( aType, tempNk.aT ) == 0)
+					  {
+						  tempNk.R = _ffvdwparams[i]._dpar[0];
+				          tempNk.eps = _ffvdwparams[i]._dpar[1];
+
+						  nkmol.push_back( tempNk );
+					  }
+			      }
+		  
+			   }
+
+		  return true;
+
+		}
+
+  };
+  // end ffpGhemical class definition
 
   class Molecule;
   class PsfPotDialog : public QDialog
@@ -393,6 +505,9 @@ namespace Avogadro
 
 	 QString psfUff();
 	 QString potUff();
+
+	 QString psfGhemical();
+	 QString potGhemical();
 
     private:
       Ui::PsfPotDialog ui;

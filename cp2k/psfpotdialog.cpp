@@ -111,6 +111,10 @@ namespace Avogadro
 	  else if( m_forceField == "UFF")
 	       return psfUff();
 
+	  // Ghemical case
+	  else if( m_forceField == "Ghemical")
+	       return psfGhemical();
+
       // default
 	  else return psfGaff();
 
@@ -125,6 +129,10 @@ namespace Avogadro
 	  // UFF case
 	  else if( m_forceField == "UFF")
 		  return potUff();
+
+	  // Ghemical case
+	  else if( m_forceField == "Ghemical")
+	       return potGhemical();
 
 	  // default
 	  else return potGaff();
@@ -152,7 +160,7 @@ namespace Avogadro
 	  {
 		  QMessageBox msgBox;
           msgBox.setText(tr("The moleule has been modified."));
-          msgBox.setInformativeText(tr("Do you want to update before generating file?"));
+          msgBox.setInformativeText(tr("Will you update before generating file?"));
           msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
           msgBox.setDefaultButton(QMessageBox::Yes);
           int ret = msgBox.exec();
@@ -179,7 +187,7 @@ namespace Avogadro
 	  {
 		  QMessageBox msgBox;
           msgBox.setText(tr("The moleule has been modified."));
-          msgBox.setInformativeText(tr("Do you want to update before generating file?"));
+          msgBox.setInformativeText(tr("Will you update before generating file?"));
           msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
           msgBox.setDefaultButton(QMessageBox::Yes);
           int ret = msgBox.exec();
@@ -251,9 +259,10 @@ namespace Avogadro
     return fileName;
   }
 
-  // convert a first and a second letter of a character array (mainly GAFF Atom Type)
-  // or two or four letters of a character array (UFF Atom Type)
-  // into the integer-type acsii code
+  // convert a first and a second letters of a GAFF atom type character array,
+  // two or four letters of a UFF atom type character array,
+  // and four letters of a Ghemical atom type character array 
+  // into integer-type ascii code
   int PsfPotDialog::chrs2int( const char* chrs )
   {
 	int retval = 0;
@@ -261,7 +270,7 @@ namespace Avogadro
     char fstchr[32], scdchr[32], trdchr[32], fthchr[32];
 	int fstval, scdval, trdval, fthval; 
 
-	if( strlen(chrs) <= 2 && chrs[1] != '_' ) // GAFF (Partially UFF) Atom Type
+	if( strlen(chrs) <= 2 && chrs[1] != '_' ) // GAFF, MMFF? and Partially UFF Atom Types
 	{
 	  sprintf( fstchr, "%i", chrs[0] );
       sprintf( scdchr, "%i", chrs[1] ); // chrs[1]=='\0' case may occur.
@@ -283,7 +292,8 @@ namespace Avogadro
 	  retval = fstval*100 + scdval;
 	}
 
-	else if( strlen(chrs) == 5 ) // UFF Atom Type (case 2)
+	else if( ( strlen(chrs) == 5 ) // UFF Atom Type (case 2)
+		     || ( strlen(chrs) == 4 ) ) // Ghemical Atom Type
 	{
 	   sprintf( fstchr, "%i", chrs[0] );
        sprintf( scdchr, "%i", chrs[1] );
@@ -585,13 +595,6 @@ namespace Avogadro
 
   }
 
-
-  /*
-  // The following functions will be move to other cpp files
-  //
-  //
-  //
-  */
 
   	QString PsfPotDialog::psfGaff()
 	{
@@ -1363,7 +1366,7 @@ namespace Avogadro
 
 	  return buffer;
 
-	}// pfUff() ends.
+	}// psfUff() ends.
 
 
     QString PsfPotDialog::potUff()
@@ -1580,7 +1583,468 @@ namespace Avogadro
 	  }
 
 	  return buffer;
+
+   }// end potUff()
+
+   QString PsfPotDialog::psfGhemical()
+   {
+	  // return "! Ghemical psf is not yet implemented !";
+
+	  QString buffer;
+	  QTextStream ts(&buffer);
+
+	  QString molBaseName;
+	  OBMol mol;
+
+	  if( m_molecule != NULL )
+	  {
+		  	QFileInfo molNameInfo( m_molecule->fileName() );
+	        molBaseName =  molNameInfo.baseName();
+
+			mol = m_molecule->OBMol();
+
+			if( mol.Empty() ) 
+	        { 
+		       return tr("! moleclar data is empty!");
+	        }
+
+		   OBForceField* pFF = OBForceField::FindForceField("Ghemical");
+           if (!pFF)
+	       {
+               return tr("! Could not find Ghemical foecefield !");
+	       }
+
+            if (!pFF->Setup(mol))
+	       {
+			   QString debugInfo;
+	           QTextStream dits(&debugInfo);// debugInfo text stream;
+
+			   dits << tr("! Could not setup Ghemical forcefield for the molecule.\n");
+			   dits << tr("! It may go well if you add hydrogens to the moleule.\n");
+               return debugInfo;
+            }
+
+	        if(!pFF->GetAtomTypes(mol))
+           {
+	          return tr("! Could not find atom types for the molecule.");
+           }
+
+			// For multiple disconnected fragments case.
+			vector<OBMol> mols = mol.Separate(1); 
+			int molid;
+
+			for ( molid = 0; molid < mols.size() ; molid++ )
+			{
+				FOR_ATOMS_OF_MOL( atom, mols[molid] )
+				{
+					char segIdx[ 1024 ];
+					sprintf( segIdx, "%d", molid + 1 );
+					OBPairData *segIdxLabel = new OBPairData;
+                    segIdxLabel->SetAttribute("SegmentIndex");
+                    segIdxLabel->SetValue(segIdx);
+                      // segIdxLabel->SetOrigin(userInput); // set by user, not by Open Babel
+
+					mol.GetAtomById( atom->GetId() )->SetData(segIdxLabel);
+				}
+			}
+
+			ts << "PSF\n\n";
+            ts << "      3 !NTITLE\n";
+			ts << "      " << left << molBaseName << ".\n";
+            ts << tr("      Avogadro generated Protein Structure File (PSF)\n");
+			ts << tr("      by using Ghemical Force Fields.\n\n");
+
+			ts << qSetFieldWidth(5) << right << mol.NumAtoms() << " !NATOMS" << qSetFieldWidth(0) << endl;
+
+
+			  FOR_ATOMS_OF_MOL( atom, mol )
+		     {
+				 int atomid = atom->GetIdx();
+
+			      OBPairData *type = (OBPairData*) atom->GetData("FFAtomType");
+                  OBPairData *segidx;
+				  if( atom->HasData("SegmentIndex"))
+				      segidx =  (OBPairData*) atom->GetData("SegmentIndex");
+
+				  if( atom->HasData("SegmentIndex"))
+				  { ts << qSetFieldWidth(7) << right << atomid << qSetFieldWidth(0)
+				 	 << " SEG" << left << segidx->GetValue().c_str();
+				  }
+
+				  else
+				  {
+					  ts << qSetFieldWidth(7) << right << atomid << qSetFieldWidth(0)
+				 	      << " SEG" ;
+				  }
+
+				  ts << qSetFieldWidth(7) << right 
+					  << atom->GetResidue()->GetIdx() + 1;
+				  ts << qSetFieldWidth(5) << right << atom->GetResidue()->GetName().c_str() 
+					  << qSetFieldWidth(0) << " ";
+				  ts << left << etab.GetSymbol(atom->GetAtomicNum()) << "  ";
+				  ts << left << type->GetValue().c_str() << "    ";
+				  ts << qSetRealNumberPrecision(5) << fixed << right << atom->GetPartialCharge() <<  "  ";
+				  ts << qSetRealNumberPrecision(5) << fixed << right << atom->GetExactMass() << "      0\n";
+
+			  }	   
+
+
+			  	      ts << endl;
+          ts << qSetFieldWidth(5) << right << mol.NumBonds() << " !NBONDS" << qSetFieldWidth(0) << endl;
+		  ts << "     ";
+
+		 // bond pairs
+         int i = 0;
+		 
+		 FOR_BONDS_OF_MOL( bond, mol )
+          {
+				ts << "   " 
+				    << bond->GetBeginAtom()->GetIdx()
+				    << "   " 
+				   << bond->GetEndAtom()->GetIdx();
+	               i++;
+
+	              if( i >= 4 ) // four pairs of atoms per line
+	              {
+			             ts << endl << "     ";
+	                     i=0;
+	              }
+	              else continue;
+           }
+          // end of bonds
+
+		  ts << endl << endl;
+
+		  // number of angles
+          int nAngle = 0;
+          FOR_ANGLES_OF_MOL(angle, mol){ nAngle++; }
+
+          ts << qSetFieldWidth(5) << right << nAngle << " !NTHETA: angles" << qSetFieldWidth(0) << endl;
+		  ts << "     ";
+
+		  // angle triples
+          OBAtom *a, *b, *c;
+          i = 0;
+
+		   	    FOR_ANGLES_OF_MOL( angle, mol )
+		        {					
+		             a = mol.GetAtom((*angle)[1] + 1);
+	                 b = mol.GetAtom((*angle)[0] + 1); // vertex
+	                 c = mol.GetAtom((*angle)[2] + 1);
+
+	                ts << "   " 
+			        	<< a->GetIdx()
+			    	    << "   " 
+				        << b->GetIdx()
+				         << "   " 
+				       << c->GetIdx();
+                     i++;
+
+	                if( i >= 3 ) // three triples of atoms per line
+	                { 
+		                ts << endl << "     ";
+		                 i = 0;
+	                }
+	                else continue;
+
+		         }
+          ts << endl;
+         // end of angles
+
+		ts << endl; // an empty line
+
+        // number of torsion (dihedral) quadreples
+        int nTorsion = 0;
+        FOR_TORSIONS_OF_MOL(torsion, mol){ nTorsion++ ;}
+		ts << qSetFieldWidth(5) << right << nTorsion << " !NPHI: dihedrals" << qSetFieldWidth(0) << endl;
+	    ts << "     ";
+
+        // torsion (dihedral) quadreples
+        OBAtom* d; // OBAtom *a, *b and *c are already decleard above.
+        i = 0;
+
+	     FOR_TORSIONS_OF_MOL(torsion, mol )
+         {
+	         a = mol.GetAtom((*torsion)[0] + 1);
+	         b = mol.GetAtom((*torsion)[1] + 1);
+	         c = mol.GetAtom((*torsion)[2] + 1);
+	         d = mol.GetAtom((*torsion)[3] + 1);
+
+			 ts << "   " 
+				  << a->GetIdx()
+				  << "   " 
+				  << b->GetIdx()
+				  << "   "
+				  << c->GetIdx()
+				  << "   " <<
+				     d->GetIdx();
+	           i++;
+
+	          if( i >= 2 ) // two quaruples of atoms per line
+	          { 
+		        ts << endl
+					<< "     ";
+		        i = 0;
+	           }
+	        else continue;
+         }
+       // end of dihedrals
+
+      ts << endl; // an empty line
+
+	  // improper (out-of plane) motion energy is ignored in ghemical ff.
+       ts <<  "   0 !NIMPHI: impropers" << endl;
+
+       // end of out-of-plane
+
+        ts << endl; // an empty line
+
+        ts << "   0 !NDON\n\n";
+        ts << "   0 !NACC\n\n";
+        ts << "   0 !NNB\n\n";
+        ts << "   0 !NGRP\n\n";
+	 }
+
+	  else
+	  {
+		  ts << tr("! No molecule was found.\n");
+		  ts << tr("! These psf and pot preview panes are NOT automatically updated !\n");
+		  ts << tr("! Please click the update button to update !\n");
+	  }
+
+	  return buffer;
+
+   }// end psfGhemical()
+
+   QString PsfPotDialog::potGhemical()
+   {
+	  // return "! Ghemical pot is not yet implemented !";
+
+	  QString buffer;
+	  QTextStream ts(&buffer);
+
+	  QString molBaseName;
+	  OBMol mol;
+
+	  if( m_molecule != NULL )
+	  {
+		   QFileInfo molNameInfo( m_molecule->fileName() );
+	        molBaseName =  molNameInfo.baseName();
+
+		    mol = m_molecule->OBMol();
+
+			if( mol.Empty() ) 
+	        { 
+		       return tr("! moleclar data is empty!");
+	        }
+
+	       OBForceField* pFF = OBForceField::FindForceField("Ghemical");
+
+           if (!pFF)
+	       {
+               return tr("! Could not find Ghemical forcefield!");
+	       }
+
+           if (!pFF->Setup(mol))
+	       {
+			   QString debugInfo;
+	           QTextStream dits(&debugInfo); // debugInfo text stream;
+
+			   dits << tr("! Could not setup Ghemical forcefield for the molecule.\n");
+			   dits << tr("! It may go well if you add hydrogens to the moleule.\n");
+               return debugInfo;
+            }
+
+	       if(!pFF->GetAtomTypes(mol))
+           {
+	          return tr("! Could not find atom types for the molecule.");
+           }
+
+		   ffpGhemical* pP = static_cast<ffpGhemical*>(pFF);
+		   if (pP->ffpGhemical::SetupPointers() == false )
+		   { return tr("Failed to get Ghemical forcefield Parameters");}
+
+
+		   sort( bkmol.begin(), bkmol.end(), Avogadro::PsfPotDialog::bondTypeComp );
+	       vector<bondKind>::iterator bondEnd = unique(bkmol.begin(), bkmol.end(), Avogadro::PsfPotDialog::bondTypeEqual );
+	       bkmol.erase( bondEnd, bkmol.end() );
+
+
+
+		   sort( akmol.begin(), akmol.end(), Avogadro::PsfPotDialog::angleTypeComp );
+	       vector<angleKind>::iterator angleEnd = unique(akmol.begin(), akmol.end(), Avogadro::PsfPotDialog::angleTypeEqual );
+	       akmol.erase( angleEnd, akmol.end() );
+
+
+
+		   sort( tkmol.begin(), tkmol.end(), Avogadro::PsfPotDialog::torTypeComp );
+	       vector<torKind>::iterator torEnd = unique(tkmol.begin(), tkmol.end(), Avogadro::PsfPotDialog::torTypeEqual );
+	       tkmol.erase( torEnd, tkmol.end() );
+
+           
+		   /*
+		   sort( okmol.begin(), okmol.end(), Avogadro::PsfPotDialog::oopTypeComp );
+	       vector<oopKind>::iterator oopEnd = unique(okmol.begin(), okmol.end(), Avogadro::PsfPotDialog::oopTypeEqual );
+	       okmol.erase( oopEnd, okmol.end() );
+		   */
+
+
+		   sort( nkmol.begin(), nkmol.end(), Avogadro::PsfPotDialog::nbTypeComp );
+	       vector<nbKind>::iterator nbEnd = unique(nkmol.begin(), nkmol.end(), Avogadro::PsfPotDialog::nbTypeEqual );
+	       nkmol.erase( nbEnd, nkmol.end() );
+
+
+		  ts << tr("*>>>>>>>   Ghemical Force Field written in CHARMM FF style  <<<<<<<\n");
+		  ts << tr("*>>>>>>>   for ") << molBaseName;
+		  ts << tr(" which generated by Avogadro.          <<<<<<<\n\n");
+		  ts << "BONDS\n";
+		  ts << "!\n";
+          ts << "!V(bond) = Kb(b - b0)**2\n";
+          ts << "!\n";
+          ts << "!Kb: kcal/mole/A**2\n";
+          ts << "!b0: A\n";
+          ts << "!\n";
+          ts << "!atom type Kb          b0\n";
+          ts << "!\n";
+		 
+		 for( int i = 0; i < bkmol.size(); i++ )
+	     {
+
+		  ts << qSetRealNumberPrecision(5) << fixed << right
+			 << bkmol[i].aT1 << " "
+             <<  bkmol[i].aT2 << "    "
+			 << qSetRealNumberPrecision(9)
+			 <<  bkmol[i].Kb << " "
+			 <<  bkmol[i].req << endl;
+   	     }
+		 
+		  ts << endl; // insert empty line
+
+		 ts << "ANGLES\n";
+		 ts << "!\n";
+		 ts << "!V(angle) = Ktheta(Theta - Theta0)**2\n";
+		 ts << "!\n";
+		 ts << "!V(Urey-Bradley) = Kub(S - S0)**2\n";
+		 ts << "!\n";
+		 ts << "!Ktheta: kcal/mole/rad**2\n";
+		 ts << "!Theta0: degrees\n";
+		 ts << "!Kub: kcal/mole/A**2 (Urey-Bradley)\n";
+		 ts << "!S0: A\n";
+		 ts << "!\n";
+		 ts << tr("!atom types     Ktheta    Theta0   Kub     S0\n");
+		 ts << "!\n";
+
+
+		 for( int i = 0; i < akmol.size(); i++ )
+	     {
+		    ts  << qSetRealNumberPrecision(5) << fixed << right
+				<<  akmol[i].aT1 << " "
+               <<  akmol[i].aT2 << " "
+			   <<  akmol[i].aT3 << "    "
+			   <<  qSetRealNumberPrecision(9)
+			   <<  akmol[i].Kth << " "
+			   <<  akmol[i].theq << endl;
+	     
+		 }
+
+
+		ts << endl; // an empty line
+
+	    ts << "DIHEDRALS" << endl;
+        ts << "!\n";
+        ts << "!V(dihedral) = Kchi(1 + cos(n(chi) - delta))\n";
+        ts << "!\n";
+        ts << "!Kchi: kcal/mole\n";
+        ts << "!n: multiplicity\n";
+        ts << "!delta: degrees\n";
+        ts << "!\n";
+        ts << "!atom types             Kchi    n   delta\n";
+		ts << "!\n";
+
+
+	   for( int i = 0; i < tkmol.size(); i++ )
+	   {
+		      ts  << qSetRealNumberPrecision(5) << fixed << right
+			      <<  tkmol[i].aT1 << " "
+                  <<  tkmol[i].aT2 << " "
+			      <<  tkmol[i].aT3 << " "
+                  <<  tkmol[i].aT4 << "    "
+			      <<  tkmol[i].vn2 << " "
+			      <<  qSetRealNumberPrecision(0) 
+			      <<  tkmol[i].n << "  "
+			      <<  qSetRealNumberPrecision(5) << fixed << right
+			      <<  tkmol[i].gamma << endl;
+   	    }
+
+
+	    ts << endl; // an empty line
+
+	    ts << "IMPROPER" << endl;
+        ts << "!V(improper) = Kpsi(psi - psi0)**2\n";
+        ts << "!\n";
+        ts << "!Kpsi: kcal/mole/rad**2\n";
+        ts << "!psi0: degrees\n";
+        ts << "!note that the second column of numbers (0) is ignored\n";
+        ts << "!\n";
+
+      /*
+	   for( int i = 0; i < okmol.size(); i++ )
+	  {
+		    ts << qSetRealNumberPrecision(5) << fixed << right
+		    	<<  okmol[i].aT1 << " "
+               <<  okmol[i].aT2 << " "
+			   <<  okmol[i].aT3 << " "
+               <<  okmol[i].aT4 << "    "
+			   <<  okmol[i].vn2 << "   "
+			   << "0    "
+			   <<  okmol[i].gamma << endl;
+
+   	  }
+      */
+
+	// ts << endl; // an empty line
+
+	ts << "NONBONDED" << endl;
+	ts << "!\n";
+	ts << "!V(Lennard-Jones) = Eps,i,j[(Rmin,i,j/ri,j)**12 - 2(Rmin,i,j/ri,j)**6]\n";
+	ts << "!\n";
+	ts << "!epsilon: kcal/mole, Eps,i,j = sqrt(eps,i * eps,j)\n";
+	ts << "!Rmin/2: A, Rmin,i,j = Rmin/2,i + Rmin/2,j\n";
+	ts << "!\n";
+	ts << "!atom  ignored    epsilon      Rmin/2   ignored   eps,1-4       Rmin/2,1-4\n";
+	ts << "!\n";
+
+
+	for( int i = 0; i< nkmol.size() ; i++ )
+	{
+
+		ts  << qSetRealNumberPrecision(5) << fixed << right
+			<< nkmol[i].aT << "     "
+			<< "0.00000" << "   "
+			<< nkmol[i].eps <<  "   "
+			<< nkmol[i].R
+			<< endl;
 	}
+
+
+
+	ts << endl; // an empty line
+
+	ts << "END" << endl << endl; 
+
+	  }// end( if(m_molecule != NULL)
+
+	  else
+	  {
+		  ts << tr("! No molecule was found.\n");
+		  ts << tr("! These psf and pot preview panes are NOT automatically updated !\n");
+		  ts << tr("! Please click the update button to update !\n");
+	  }
+
+	  return buffer;
+
+   }// end potGhemical()
+
 
 	void PsfPotDialog::setForceField(int n)
 	{
@@ -1593,6 +2057,10 @@ namespace Avogadro
 
 		  case 1:
 			  m_forceField = "UFF";
+			  break;
+
+		  case 2:
+			  m_forceField = "Ghemical";
 			  break;
 		}
 

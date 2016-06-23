@@ -35,6 +35,11 @@
          <string>UFF</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Ghemical</string>
+        </property>
+       </item>
       </widget>
      </item>
      <item>
